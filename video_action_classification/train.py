@@ -17,21 +17,6 @@ train_dir = Path('../data/hw1/train/')
 test_dir = Path('../data/hw1/test/')
 BATCHSIZE = 1
 
-class MLP(nn.Module):
-    def __init__(self, in_dim, hidden_dim, out_dim):
-        super(MLP, self).__init__()
-        self.mlp = nn.Sequential(
-                nn.Linear(in_dim, hidden_dim),
-                nn.ReLU(),
-                nn.Linear(in_dim, hidden_dim),
-                nn.ReLU(),
-                nn.Linear(in_dim, hidden_dim),
-                nn.ReLU(),
-                nn.Linear(in_dim, out_dim),
-                )
-    def forward(self, x):
-        return self.mlp(x)
-
 class VideoActionClassifier(pl.LightningModule):
     def __init__(self):
         super().__init__()
