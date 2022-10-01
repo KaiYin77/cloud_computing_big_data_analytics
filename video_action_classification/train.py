@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 import pytorchvideo.models.resnet
 import pytorch_lightning as pl
+from pytorch_lightning.callbacks import ModelCheckpoint
 from dataloader import VideoActionDataset
 from pathlib import Path
 import os 
@@ -70,7 +71,8 @@ class VideoActionClassifier(pl.LightningModule):
                 self.dataset, 
                 batch_size=BATCHSIZE, 
                 sampler=train_sampler,
-                num_workers=8
+                num_workers=8,
+                pin_memory=True
                 )
     def val_dataloader(self):
         val_sampler = SubsetRandomSampler(self.val_indices)
@@ -78,10 +80,19 @@ class VideoActionClassifier(pl.LightningModule):
                 self.dataset, 
                 batch_size=1, 
                 sampler=val_sampler,
-                num_workers=8
+                num_workers=8,
+                pin_memory=True
                 )
     
 if __name__ == '__main__':
     model = VideoActionClassifier()
-    trainer = pl.Trainer(default_root_dir=ckpt_dir)
+    checkpoint_callback = ModelCheckpoint(
+            dirpath=ckpt_dir, 
+            save_top_k=5, 
+            monitor="val_loss"
+            )
+    trainer = pl.Trainer(
+            callbacks=[checkpoint_callback],
+            accelerator="gpu",
+            )
     trainer.fit(model)
