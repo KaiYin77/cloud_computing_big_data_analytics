@@ -1,6 +1,7 @@
 '''
 Boosted by lightning module
 '''
+import csv
 import numpy as np
 import torch
 from torch import nn
@@ -10,17 +11,19 @@ from torch.utils.data.sampler import SubsetRandomSampler
 import pytorchvideo.models.resnet
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
-from dataloader import VideoActionDataset
+from dataloader import VideoActionDataset, VideoActionTestDataset
 from pathlib import Path
 import os 
 
 train_dir = Path('../data/hw1/train/')
 processed_dir = Path('../data/hw1/processed/')
 test_dir = Path('../data/hw1/test/')
+test_processed_dir = Path('../data/hw1/test_processed/')
 ckpt_dir = Path('./weights/')
 BATCHSIZE = 8
 
 os.makedirs(processed_dir, exist_ok=True)
+os.makedirs(test_processed_dir, exist_ok=True)
 
 class VideoActionClassifier(pl.LightningModule):
     def __init__(self):
@@ -52,9 +55,24 @@ class VideoActionClassifier(pl.LightningModule):
         loss = F.cross_entropy(y_hat, val_batch["label"])
         self.log("val_loss", loss.item())
 
+    def test_step(self, test_batch, test_idx):
+        y_hat = self.model(test_batch["video"])
+        conf, index = y_hat.max(-1)
+        self.log("video_name": test_batch["video_name"], "predict": index)
+
+    def test_epoch_end(self, outputs):
+        file = open('./submit/311511036.csv', 'w')
+        writer = csv.writer(file)
+        data=["name", "label"]
+        writer.writerow(data)
+        for output in outputs:
+            pass
+        file.close()
+
     def prepare_data(self):
         self.dataset = VideoActionDataset(train_dir, processed_dir)
-        
+        self.test_dataset = VideoActionTestDataset(test_dir, test_processed_dir)
+
         val_split = 0.2
         random_seed = 1234
         dataset_size = len(self.dataset)
@@ -83,7 +101,13 @@ class VideoActionClassifier(pl.LightningModule):
                 num_workers=8,
                 pin_memory=True
                 )
-    
+    def test_dataloader(self): 
+        return DataLoader(
+                self.test_dataset,
+                batch_size=1,
+                num_workers=8,
+                pin_memory=True
+                )
 if __name__ == '__main__':
     model = VideoActionClassifier()
     checkpoint_callback = ModelCheckpoint(
@@ -94,5 +118,7 @@ if __name__ == '__main__':
     trainer = pl.Trainer(
             callbacks=[checkpoint_callback],
             accelerator="gpu",
+            max_epochs=50,
             )
     trainer.fit(model)
+    #trainer.test(ckpt_path="best")
