@@ -32,14 +32,20 @@ parser.add_argument(
         )
 args = parser.parse_args()
 '''
-Config
+Train Config
 '''
 train_dir = Path('../data/hw1/train/')
 processed_dir = Path('../data/hw1/processed/')
-test_dir = Path('../data/hw1/test/')
-test_processed_dir = Path('../data/hw1/test_processed/')
 ckpt_dir = Path('./weights/')
 BATCHSIZE = 8
+
+'''
+Test Config
+'''
+test_dir = Path('../data/hw1/test/')
+test_processed_dir = Path('../data/hw1/test_processed/')
+test_mini_dir = Path('../data/hw1/test_mini/')
+ckpt_name = 'epoch=1-step=6000'
 
 os.makedirs(processed_dir, exist_ok=True)
 os.makedirs(test_processed_dir, exist_ok=True)
@@ -77,20 +83,22 @@ class VideoActionClassifier(pl.LightningModule):
     def test_step(self, test_batch, test_idx):
         y_hat = self.model(test_batch["video"])
         conf, index = y_hat.max(-1)
-        return {'video_name': test_batch['video_name'], 'predict': index}
+        return {'video_name': test_batch['video_name'][0], 'predict': index.item()}
 
     def test_epoch_end(self, outputs):
-        file = open('./submit/311511036.csv', 'w')
+        submit_file='submit/' + ckpt_name + '.csv'
+        file = open(submit_file, 'w')
         writer = csv.writer(file)
         data=["name", "label"]
         writer.writerow(data)
         for output in outputs:
-            pass
+            data=[output['video_name'], output['predict']]
+            writer.writerow(data)
         file.close()
 
     def prepare_data(self):
         self.dataset = VideoActionDataset(train_dir, processed_dir)
-        self.test_dataset = VideoActionTestDataset(test_dir, test_processed_dir)
+        self.test_dataset = VideoActionTestDataset(test_mini_dir, test_processed_dir)
 
         val_split = 0.2
         random_seed = 1234
@@ -132,6 +140,7 @@ if __name__ == '__main__':
         model = VideoActionClassifier()
         checkpoint_callback = ModelCheckpoint(
             dirpath=ckpt_dir, 
+            filename='{epoch:02d}',
             save_top_k=5, 
             monitor="val_loss"
             )
@@ -142,8 +151,9 @@ if __name__ == '__main__':
             )
         trainer.fit(model)
     if args.test:
+        ckpt_path='weights/' + ckpt_name + '.ckpt'
         model = VideoActionClassifier.load_from_checkpoint(
-                checkpoint_path="./weights/epoch=0-step=3000.ckpt",
+                checkpoint_path=ckpt_path,
                 map_location=None,
                 )
         trainer = pl.Trainer(
