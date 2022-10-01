@@ -106,6 +106,7 @@ class VideoActionTestDataset(Dataset):
             sample = {}
             frame_list = frame_list[::4] # downsample to 1/4 frame rate
             sample['video'] = torch.permute(frame_list, (3, 0, 1, 2))
+            sample['video_name'] = os.path.basename(video_path)
         return sample
 
     def crop_center_square(self, frame):
