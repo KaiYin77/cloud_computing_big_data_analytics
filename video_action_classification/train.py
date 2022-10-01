@@ -14,7 +14,26 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from dataloader import VideoActionDataset, VideoActionTestDataset
 from pathlib import Path
 import os 
+import argparse
 
+'''
+Argparse
+'''
+parser = argparse.ArgumentParser()
+parser.add_argument(
+        "--train",
+        help="train mode",
+        action='store_true',
+        )
+parser.add_argument(
+        "--test",
+        help="test mode",
+        action='store_true',
+        )
+args = parser.parse_args()
+'''
+Config
+'''
 train_dir = Path('../data/hw1/train/')
 processed_dir = Path('../data/hw1/processed/')
 test_dir = Path('../data/hw1/test/')
@@ -58,7 +77,7 @@ class VideoActionClassifier(pl.LightningModule):
     def test_step(self, test_batch, test_idx):
         y_hat = self.model(test_batch["video"])
         conf, index = y_hat.max(-1)
-        self.log("video_name": test_batch["video_name"], "predict": index)
+        return {'video_name': test_batch['video_name'], 'predict': index}
 
     def test_epoch_end(self, outputs):
         file = open('./submit/311511036.csv', 'w')
@@ -109,16 +128,25 @@ class VideoActionClassifier(pl.LightningModule):
                 pin_memory=True
                 )
 if __name__ == '__main__':
-    model = VideoActionClassifier()
-    checkpoint_callback = ModelCheckpoint(
+    if args.train:
+        model = VideoActionClassifier()
+        checkpoint_callback = ModelCheckpoint(
             dirpath=ckpt_dir, 
             save_top_k=5, 
             monitor="val_loss"
             )
-    trainer = pl.Trainer(
+        trainer = pl.Trainer(
             callbacks=[checkpoint_callback],
             accelerator="gpu",
             max_epochs=50,
             )
-    trainer.fit(model)
-    #trainer.test(ckpt_path="best")
+        trainer.fit(model)
+    if args.test:
+        model = VideoActionClassifier.load_from_checkpoint(
+                checkpoint_path="./weights/epoch=0-step=3000.ckpt",
+                map_location=None,
+                )
+        trainer = pl.Trainer(
+            accelerator="gpu",
+            )
+        trainer.test(model)
