@@ -40,8 +40,16 @@ class VideoActionDataset(Dataset):
             success, frame = cap.read()
             if success is False:
                 break
-            frame = self.crop_center_square(frame)
-            frame = cv2.resize(frame, (self.height, self.width))
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame = cv2.resize(frame, (self.height, self.width), interpolation=cv2.INTER_AREA)
+            
+            #'''
+            #Test
+            #'''
+            #from PIL import Image
+            #pil_image=Image.fromarray(frame)
+            #pil_image.save(f'temp/{idx}_{frame_count}.jpeg')
+            
             frame_list[frame_count] = torch.from_numpy(frame)
             frame_count += 1
 
@@ -88,8 +96,8 @@ class VideoActionTestDataset(Dataset):
             success, frame = cap.read()
             if success is False:
                 break
-            frame = self.crop_center_square(frame)
-            frame = cv2.resize(frame, (self.height, self.width))
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame = cv2.resize(frame, (self.height, self.width), interpolation=cv2.INTER_AREA)
             frame_list[frame_count] = torch.from_numpy(frame)
             frame_count += 1
 
