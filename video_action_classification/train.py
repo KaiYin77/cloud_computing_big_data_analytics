@@ -51,9 +51,6 @@ test_dir = Path('../data/hw1/test/')
 test_mini_dir = Path('../data/hw1/test_mini/')
 ckpt_name = str(args.ckpt)
 
-os.makedirs(processed_dir, exist_ok=True)
-os.makedirs(test_processed_dir, exist_ok=True)
-
 class VideoActionClassifier(pl.LightningModule):
     def __init__(self):
         super().__init__()
