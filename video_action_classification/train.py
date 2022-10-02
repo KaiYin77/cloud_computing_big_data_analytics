@@ -101,8 +101,8 @@ class VideoActionClassifier(pl.LightningModule):
         self.dataset = VideoActionDataset(train_dir)
         self.test_dataset = VideoActionTestDataset(test_dir)
 
-        val_split = 0.2
-        random_seed = 1234
+        val_split = 0.15
+        random_seed = 7777
         dataset_size = len(self.dataset)
         indices = list(range(dataset_size))
 
@@ -141,7 +141,7 @@ if __name__ == '__main__':
         model = VideoActionClassifier()
         checkpoint_callback = ModelCheckpoint(
             dirpath=ckpt_dir, 
-            filename='{epoch:02d}',
+            filename='{epoch:02d}-{val_loss:.2f}',
             save_top_k=5, 
             monitor="val_loss"
             )
