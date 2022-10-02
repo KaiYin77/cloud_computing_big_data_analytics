@@ -30,12 +30,17 @@ parser.add_argument(
         help="test mode",
         action='store_true',
         )
+parser.add_argument(
+        "--ckpt", 
+        help="specify ckpt name", 
+        default="epoch=11", 
+        type=str
+        )
 args = parser.parse_args()
 '''
 Train Config
 '''
 train_dir = Path('../data/hw1/train/')
-processed_dir = Path('../data/hw1/processed/')
 ckpt_dir = Path('./weights/')
 BATCHSIZE = 8
 
@@ -43,9 +48,8 @@ BATCHSIZE = 8
 Test Config
 '''
 test_dir = Path('../data/hw1/test/')
-test_processed_dir = Path('../data/hw1/test_processed/')
 test_mini_dir = Path('../data/hw1/test_mini/')
-ckpt_name = 'epoch=1-step=6000'
+ckpt_name = str(args.ckpt)
 
 os.makedirs(processed_dir, exist_ok=True)
 os.makedirs(test_processed_dir, exist_ok=True)
@@ -97,8 +101,8 @@ class VideoActionClassifier(pl.LightningModule):
         file.close()
 
     def prepare_data(self):
-        self.dataset = VideoActionDataset(train_dir, processed_dir)
-        self.test_dataset = VideoActionTestDataset(test_mini_dir, test_processed_dir)
+        self.dataset = VideoActionDataset(train_dir)
+        self.test_dataset = VideoActionTestDataset(test_dir)
 
         val_split = 0.2
         random_seed = 1234
@@ -147,7 +151,7 @@ if __name__ == '__main__':
         trainer = pl.Trainer(
             callbacks=[checkpoint_callback],
             accelerator="gpu",
-            max_epochs=50,
+            max_epochs=25,
             )
         trainer.fit(model)
     if args.test:
