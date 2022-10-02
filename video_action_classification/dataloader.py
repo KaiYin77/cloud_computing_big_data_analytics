@@ -43,16 +43,24 @@ class VideoActionDataset(Dataset):
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame = cv2.resize(frame, (self.height, self.width), interpolation=cv2.INTER_AREA)
             
-            #'''
-            #Test
-            #'''
+            '''
+            Test
+            '''
             #from PIL import Image
-            #pil_image=Image.fromarray(frame)
-            #pil_image.save(f'temp/{idx}_{frame_count}.jpeg')
-            
-            frame_list[frame_count] = torch.from_numpy(frame)
+            #if frame_count % 4 == 0:
+            #    print('frame_count: ', frame_count)
+            #    pil_image=Image.fromarray(frame)
+            #    pil_image.save(f'temp/{idx}_{frame_count}.jpeg')
+            '''
+            Perform linear transformation to 0~1
+            '''
+            frame_list[frame_count] = torch.from_numpy(frame)/255.0
             frame_count += 1
 
+        
+        '''
+        Stack all sample
+        '''
         sample = {}
         frame_list = frame_list[::4] # downsample to 1/4 frame rate
         sample['video'] = torch.permute(frame_list, (3, 0, 1, 2))
