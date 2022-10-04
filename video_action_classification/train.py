@@ -11,7 +11,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 import pytorchvideo.models.resnet
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
-from dataloader import VideoActionDataset, VideoActionTestDataset
+from dataloader import VideoActionDataset 
 from pathlib import Path
 import os 
 import argparse
@@ -123,7 +123,7 @@ class VideoActionClassifier(pl.LightningModule):
 
     def prepare_data(self):
         self.dataset = VideoActionDataset(train_dir)
-        self.test_dataset = VideoActionTestDataset(test_dir)
+        self.test_dataset = VideoActionDataset(test_dir, mode="test")
 
         val_split = 0.15
         random_seed = 7777
