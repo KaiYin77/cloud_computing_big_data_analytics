@@ -94,7 +94,13 @@ class VideoActionClassifier(pl.LightningModule):
         self.val_total += val_batch['label'].size(0)
         self.val_correct += (index == val_batch['label']).sum().item()
         self.log('val_acc', self.val_correct/self.val_total, prog_bar=True)
-        
+        return loss
+    
+    def validation_epoch_end(self, outputs):
+        total_loss = 0
+        for output in outputs:
+            total_loss += output.item()
+        self.log('avg_val_loss', total_loss / len(outputs))
 
     def test_step(self, test_batch, test_idx):
         y_hat = self.model(test_batch["video"])
@@ -156,9 +162,9 @@ if __name__ == '__main__':
         model = VideoActionClassifier()
         checkpoint_callback = ModelCheckpoint(
             dirpath=ckpt_dir, 
-            filename='{epoch:02d}-{val_loss:.2f}-{val_acc:.2f}',
+            filename='{epoch:02d}-{avg_val_loss:.2f}-{val_acc:.2f}',
             save_top_k=5, 
-            monitor="val_loss"
+            monitor="val_acc"
             )
         trainer = pl.Trainer(
             callbacks=[checkpoint_callback],
