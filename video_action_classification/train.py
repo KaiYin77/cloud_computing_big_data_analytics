@@ -42,7 +42,7 @@ Train Config
 '''
 train_dir = Path('../data/hw1/train/')
 ckpt_dir = Path('./weights/')
-BATCHSIZE = 8
+BATCHSIZE = 12
 
 '''
 Test Config
