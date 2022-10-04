@@ -106,7 +106,7 @@ class VideoActionTestDataset(Dataset):
                 break
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame = cv2.resize(frame, (self.height, self.width), interpolation=cv2.INTER_AREA)
-            frame_list[frame_count] = torch.from_numpy(frame)
+            frame_list[frame_count] = torch.from_numpy(frame)/255.0
             frame_count += 1
 
         sample = {}
