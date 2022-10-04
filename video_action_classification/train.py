@@ -164,6 +164,7 @@ if __name__ == '__main__':
             dirpath=ckpt_dir, 
             filename='{epoch:02d}-{avg_val_loss:.2f}-{val_acc:.2f}',
             save_top_k=5, 
+            mode="max",
             monitor="val_acc"
             )
         trainer = pl.Trainer(
