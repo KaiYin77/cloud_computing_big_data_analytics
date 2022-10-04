@@ -14,12 +14,13 @@ from pathlib import Path
 import sys
 
 class VideoActionDataset(Dataset):
-    def __init__(self, raw_dir):
+    def __init__(self, raw_dir, mode="trainval"):
         self.raw_dir = raw_dir
+        self.mode = mode
         self.all_video_list = sorted(self.raw_dir.rglob("*.mp4"))
         self.max_len = 82
-        self.height = 90
-        self.width = 90
+        self.height = 120
+        self.width = 120
         self.channel = 3
 
     def __len__(self):
@@ -62,66 +63,16 @@ class VideoActionDataset(Dataset):
         Stack all sample
         '''
         sample = {}
-        frame_list = frame_list[::4] # downsample to 1/4 frame rate
+        frame_list = frame_list[::2] # downsample to 1/4 frame rate
         sample['video'] = torch.permute(frame_list, (3, 0, 1, 2))
-        parent_path = os.path.dirname(self.all_video_list[idx])
-        parent_dir = os.path.split(parent_path)[1]
-        sample['label'] = torch.as_tensor(int(parent_dir))
-
-        return sample
-
-    def crop_center_square(self, frame):
-        y, x = frame.shape[0:2]
-        min_dim = min(y, x)
-        start_x = (x // 2) - (min_dim // 2)
-        start_y = (y // 2) - (min_dim // 2)
-        return frame[start_y:start_y+min_dim,start_x:start_x+min_dim]
-
-class VideoActionTestDataset(Dataset):
-    def __init__(self, raw_dir):
-        self.raw_dir = raw_dir
-        self.all_video_list = sorted(self.raw_dir.rglob("*.mp4"))
-        self.max_len = 82
-        self.height = 90
-        self.width = 90
-        self.channel = 3
-
-    def __len__(self):
-        return len(self.all_video_list)
-
-    def __getitem__(self, idx):
-        video_path = str(self.all_video_list[idx])
-        cap = cv2.VideoCapture(video_path)
-        if cap.isOpened():
-            success = True
+        if self.mode == "test":
+          sample['video_name'] = os.path.basename(video_path)
         else:
-            sucess = False
-            print('loading .mp4 error...')
-
-        frame_list = torch.zeros(self.max_len, self.height, self.width, self.channel)
-        frame_count = 0
-        while(success):
-            success, frame = cap.read()
-            if success is False:
-                break
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frame = cv2.resize(frame, (self.height, self.width), interpolation=cv2.INTER_AREA)
-            frame_list[frame_count] = torch.from_numpy(frame)/255.0
-            frame_count += 1
-
-        sample = {}
-        frame_list = frame_list[::4] # downsample to 1/4 frame rate
-        sample['video'] = torch.permute(frame_list, (3, 0, 1, 2))
-        sample['video_name'] = os.path.basename(video_path)
+          parent_path = os.path.dirname(self.all_video_list[idx])
+          parent_dir = os.path.split(parent_path)[1]
+          sample['label'] = torch.as_tensor(int(parent_dir))
 
         return sample
-
-    def crop_center_square(self, frame):
-        y, x = frame.shape[0:2]
-        min_dim = min(y, x)
-        start_x = (x // 2) - (min_dim // 2)
-        start_y = (y // 2) - (min_dim // 2)
-        return frame[start_y:start_y+min_dim,start_x:start_x+min_dim]
 
 if __name__ == '__main__':
     '''
