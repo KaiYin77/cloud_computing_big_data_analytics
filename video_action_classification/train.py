@@ -31,6 +31,11 @@ parser.add_argument(
         action='store_true',
         )
 parser.add_argument(
+        "--validate",
+        help="validate mode",
+        action='store_true',
+        )
+parser.add_argument(
         "--ckpt", 
         help="specify ckpt name", 
         default="epoch=11", 
@@ -56,9 +61,7 @@ class VideoActionClassifier(pl.LightningModule):
         super().__init__()
         self.model = self.make_resnet()
         self.train_total = 0
-        self.val_total = 0
         self.train_correct = 0
-        self.val_correct = 0
 
     def make_resnet(self):
         return pytorchvideo.models.resnet.create_resnet(
@@ -88,19 +91,19 @@ class VideoActionClassifier(pl.LightningModule):
     def validation_step(self, val_batch, val_idx):
         y_hat = self.model(val_batch["video"])
         loss = F.cross_entropy(y_hat, val_batch["label"])
-        self.log("val_loss", loss.item(), prog_bar=True)
         
         conf, index = y_hat.max(-1)
-        self.val_total += val_batch['label'].size(0)
-        self.val_correct += (index == val_batch['label']).sum().item()
-        self.log('val_acc', self.val_correct/self.val_total, prog_bar=True)
-        return loss
+        val_correct = (index == val_batch['label']).sum().item()
+        return {'val_loss': loss, 'val_correct': val_correct}
     
     def validation_epoch_end(self, outputs):
         total_loss = 0
+        total_correct = 0
         for output in outputs:
-            total_loss += output.item()
+            total_loss += output['val_loss'].item()
+            total_correct += output['val_correct']
         self.log('avg_val_loss', total_loss / len(outputs))
+        self.log('val_acc', total_correct / len(outputs))
 
     def test_step(self, test_batch, test_idx):
         y_hat = self.model(test_batch["video"])
@@ -170,9 +173,19 @@ if __name__ == '__main__':
         trainer = pl.Trainer(
             callbacks=[checkpoint_callback],
             accelerator="gpu",
-            max_epochs=25,
+            max_epochs=50,
             )
         trainer.fit(model)
+    if args.validate:
+        ckpt_path='weights/' + ckpt_name + '.ckpt'
+        model = VideoActionClassifier.load_from_checkpoint(
+                checkpoint_path=ckpt_path,
+                map_location=None,
+                )
+        trainer = pl.Trainer(
+            accelerator="gpu",
+            )
+        trainer.validate(model)
     if args.test:
         ckpt_path='weights/' + ckpt_name + '.ckpt'
         model = VideoActionClassifier.load_from_checkpoint(
