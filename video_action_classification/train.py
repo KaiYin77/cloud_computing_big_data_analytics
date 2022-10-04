@@ -55,6 +55,10 @@ class VideoActionClassifier(pl.LightningModule):
     def __init__(self):
         super().__init__()
         self.model = self.make_resnet()
+        self.train_total = 0
+        self.val_total = 0
+        self.train_correct = 0
+        self.val_correct = 0
 
     def make_resnet(self):
         return pytorchvideo.models.resnet.create_resnet(
@@ -73,13 +77,24 @@ class VideoActionClassifier(pl.LightningModule):
     def training_step(self, train_batch, batch_idx):
         y_hat = self.model(train_batch["video"])
         loss = F.cross_entropy(y_hat, train_batch["label"])
-        self.log("train_loss", loss.item())
+        self.log("train_loss", loss.item(), prog_bar=True)
+        
+        conf, index = y_hat.max(-1)
+        self.train_total += train_batch['label'].size(0)
+        self.train_correct += (index == train_batch['label']).sum().item()
+        self.log('train_acc', self.train_correct/self.train_total, prog_bar=True)
         return loss
     
     def validation_step(self, val_batch, val_idx):
         y_hat = self.model(val_batch["video"])
         loss = F.cross_entropy(y_hat, val_batch["label"])
-        self.log("val_loss", loss.item())
+        self.log("val_loss", loss.item(), prog_bar=True)
+        
+        conf, index = y_hat.max(-1)
+        self.val_total += val_batch['label'].size(0)
+        self.val_correct += (index == val_batch['label']).sum().item()
+        self.log('val_acc', self.val_correct/self.val_total, prog_bar=True)
+        
 
     def test_step(self, test_batch, test_idx):
         y_hat = self.model(test_batch["video"])
@@ -141,7 +156,7 @@ if __name__ == '__main__':
         model = VideoActionClassifier()
         checkpoint_callback = ModelCheckpoint(
             dirpath=ckpt_dir, 
-            filename='{epoch:02d}-{val_loss:.2f}',
+            filename='{epoch:02d}-{val_loss:.2f}-{val_acc:.2f}',
             save_top_k=5, 
             monitor="val_loss"
             )
