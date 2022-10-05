@@ -3,12 +3,12 @@ import torch.nn as nn
 import torchvision.models as models
 from torch.nn.utils.rnn import pack_padded_sequence
 import torch.nn.functional as F
-from torchvision.models import resnet50
+from torchvision.models import resnet18
 
 class CNNLSTM(nn.Module):
     def __init__(self, num_class=39):
         super(CNNLSTM, self).__init__()
-        self.resnet = resnet50()
+        self.resnet = resnet18()
         self.resnet.fc = nn.Sequential(
                 nn.Linear(self.resnet.fc.in_features, 300)
                 )

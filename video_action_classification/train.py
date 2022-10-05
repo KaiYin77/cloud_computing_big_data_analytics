@@ -67,7 +67,7 @@ Train Config
 '''
 train_dir = Path('../data/hw1/train/')
 ckpt_dir = Path('./weights/')
-BATCHSIZE = 12
+BATCHSIZE = 24
 
 '''
 Test Config
@@ -102,8 +102,8 @@ class VideoActionClassifier(pl.LightningModule):
               )
 
     def configure_optimizers(self):
-        #optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
-        optimizer = torch.optim.SGD(self.parameters(), lr=1e-2, weight_decay=1e-3, momentum=0.9)
+        optimizer = torch.optim.Adam(self.parameters(), lr=1e-2)
+        #optimizer = torch.optim.SGD(self.parameters(), lr=1e-2, weight_decay=1e-3, momentum=0.9)
         lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[50,100,150])
         return [optimizer], [lr_scheduler]
     
@@ -234,7 +234,7 @@ if __name__ == '__main__':
         model = VideoActionClassifier(net=NET)
         checkpoint_callback = ModelCheckpoint(
             dirpath=ckpt_dir, 
-            filename='{epoch:02d}-{avg_val_loss:.2f}-{val_acc:.2f}',
+            filename='{NET}-{epoch:02d}-{avg_val_loss:.2f}-{val_acc:.2f}',
             save_top_k=5, 
             mode="max",
             monitor="val_acc"
