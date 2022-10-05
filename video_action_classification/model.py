@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from torchvision.models import resnet50
 
 class CNNLSTM(nn.Module):
-    def __init__(self, num_class=38):
+    def __init__(self, num_class=39):
         super(CNNLSTM, self).__init__()
         self.resnet = resnet50()
         self.resnet.fc = nn.Sequential(
@@ -14,13 +14,12 @@ class CNNLSTM(nn.Module):
                 )
         self.lstm = nn.LSTM(input_size=300, hidden_size=256, num_layers=3)
         self.fc1 = nn.Linear(256, 128)
-        self.fc2 = nn.Linear(128, num_classes)
+        self.fc2 = nn.Linear(128, num_class)
 
     def forward(self, x_3d):
         hidden = None
         for t in range(x_3d.size(1)):
-            with torch.no_grad():
-                x = self.resnet(x_3d[:, t, :, :, :])
+            x = self.resnet(x_3d[:, t, :, :, :])
             out, hidden = self.lstm(x.unsqueeze(0), hidden)
 
         x = self.fc1(out[-1, :, :])
