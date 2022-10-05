@@ -50,6 +50,12 @@ parser.add_argument(
         type=str
         )
 args = parser.parse_args()
+
+'''
+Model Selection (resnet/cnnlstm)
+'''
+NET = "cnnlstm"
+
 '''
 Train Config
 '''
@@ -65,10 +71,13 @@ test_mini_dir = Path('../data/hw1/test_mini/')
 ckpt_name = str(args.ckpt)
 
 class VideoActionClassifier(pl.LightningModule):
-    def __init__(self):
+    def __init__(self, net="resnet"):
         super().__init__()
-        #self.model = self.make_resnet()
-        self.model = self.make_cnn_lstm()
+        if net == "resnet": 
+            self.model = self.make_resnet()
+        elif net == "cnnlstm":
+            self.model = self.make_cnn_lstm()
+        print('net: ', net)
         self.train_total = 0
         self.train_correct = 0
     
@@ -138,8 +147,8 @@ class VideoActionClassifier(pl.LightningModule):
         file.close()
 
     def prepare_data(self):
-        self.dataset = VideoActionDataset(train_dir)
-        self.test_dataset = VideoActionDataset(test_dir, mode="test")
+        self.dataset = VideoActionDataset(train_dir, net=NET)
+        self.test_dataset = VideoActionDataset(test_dir, mode="test", net=NET)
 
         val_split = 0.15
         random_seed = 7777
@@ -179,7 +188,7 @@ class VideoActionClassifier(pl.LightningModule):
 if __name__ == '__main__':
     if args.train:
         wandb_logger = WandbLogger(project="action_classifier")
-        model = VideoActionClassifier()
+        model = VideoActionClassifier(net=NET)
         checkpoint_callback = ModelCheckpoint(
             dirpath=ckpt_dir, 
             filename='{epoch:02d}-{avg_val_loss:.2f}-{val_acc:.2f}',
@@ -198,6 +207,7 @@ if __name__ == '__main__':
         ckpt_path='weights/' + ckpt_name + '.ckpt'
         model = VideoActionClassifier.load_from_checkpoint(
                 checkpoint_path=ckpt_path,
+                net=NET,
                 map_location=None,
                 )
         trainer = pl.Trainer(
@@ -208,6 +218,7 @@ if __name__ == '__main__':
         ckpt_path='weights/' + ckpt_name + '.ckpt'
         model = VideoActionClassifier.load_from_checkpoint(
                 checkpoint_path=ckpt_path,
+                net=NET,
                 map_location=None,
                 )
         trainer = pl.Trainer(
@@ -215,7 +226,7 @@ if __name__ == '__main__':
             )
         trainer.test(model)
     if args.dev:
-        model = VideoActionClassifier()
+        model = VideoActionClassifier(net=NET)
         checkpoint_callback = ModelCheckpoint(
             dirpath=ckpt_dir, 
             filename='{epoch:02d}-{avg_val_loss:.2f}-{val_acc:.2f}',

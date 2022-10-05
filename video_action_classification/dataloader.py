@@ -14,9 +14,10 @@ from pathlib import Path
 import sys
 
 class VideoActionDataset(Dataset):
-    def __init__(self, raw_dir, mode="trainval"):
+    def __init__(self, raw_dir, mode="trainval", net="resnet"):
         self.raw_dir = raw_dir
         self.mode = mode
+        self.net = net
         self.all_video_list = sorted(self.raw_dir.rglob("*.mp4"))
         self.max_len = 82
         self.height = 90
@@ -64,7 +65,11 @@ class VideoActionDataset(Dataset):
         '''
         sample = {}
         frame_list = frame_list[::4] # downsample to 1/4 frame rate
-        sample['video'] = torch.permute(frame_list, (3, 0, 1, 2))
+        if self.net == "resnet":
+            frame_list = torch.permute(frame_list, (3, 0, 1, 2)) 
+        elif self.net == "cnnlstm":
+            frame_list = torch.permute(frame_list, (0, 3, 1, 2))
+        sample['video'] = frame_list
         if self.mode == "test":
           sample['video_name'] = os.path.basename(video_path)
         else:
