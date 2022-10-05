@@ -17,6 +17,8 @@ from pathlib import Path
 import os 
 import argparse
 
+from model import CNNLSTM
+
 '''
 Argparse
 '''
@@ -65,9 +67,15 @@ ckpt_name = str(args.ckpt)
 class VideoActionClassifier(pl.LightningModule):
     def __init__(self):
         super().__init__()
-        self.model = self.make_resnet()
+        #self.model = self.make_resnet()
+        self.model = self.make_cnn_lstm()
         self.train_total = 0
         self.train_correct = 0
+    
+    def make_cnn_lstm(self):
+        return CNNLSTM(
+                num_class=39
+                )
 
     def make_resnet(self):
         return pytorchvideo.models.resnet.create_resnet(
