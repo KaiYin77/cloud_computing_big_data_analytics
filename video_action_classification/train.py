@@ -11,6 +11,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 import pytorchvideo.models.resnet
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.loggers import WandbLogger
 from dataloader import VideoActionDataset 
 from pathlib import Path
 import os 
@@ -52,7 +53,7 @@ Train Config
 '''
 train_dir = Path('../data/hw1/train/')
 ckpt_dir = Path('./weights/')
-BATCHSIZE = 12
+BATCHSIZE = 1
 
 '''
 Test Config
@@ -169,6 +170,7 @@ class VideoActionClassifier(pl.LightningModule):
                 )
 if __name__ == '__main__':
     if args.train:
+        wandb_logger = WandbLogger(project="action_classifier")
         model = VideoActionClassifier()
         checkpoint_callback = ModelCheckpoint(
             dirpath=ckpt_dir, 
@@ -181,6 +183,7 @@ if __name__ == '__main__':
             callbacks=[checkpoint_callback],
             accelerator="gpu",
             max_epochs=50,
+            logger=wandb_logger,
             )
         trainer.fit(model)
     if args.validate:
