@@ -19,8 +19,8 @@ class VideoActionDataset(Dataset):
         self.mode = mode
         self.all_video_list = sorted(self.raw_dir.rglob("*.mp4"))
         self.max_len = 82
-        self.height = 120
-        self.width = 120
+        self.height = 90
+        self.width = 90
         self.channel = 3
 
     def __len__(self):
