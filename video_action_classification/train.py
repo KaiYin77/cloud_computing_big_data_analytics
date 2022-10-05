@@ -49,19 +49,25 @@ parser.add_argument(
         default="epoch=11", 
         type=str
         )
+parser.add_argument(
+        "--net", 
+        help="specify net name", 
+        default="resnet", 
+        type=str
+        )
 args = parser.parse_args()
 
 '''
 Model Selection (resnet/cnnlstm)
 '''
-NET = "cnnlstm"
+NET = args.net
 
 '''
 Train Config
 '''
 train_dir = Path('../data/hw1/train/')
 ckpt_dir = Path('./weights/')
-BATCHSIZE = 1
+BATCHSIZE = 12
 
 '''
 Test Config
@@ -77,7 +83,6 @@ class VideoActionClassifier(pl.LightningModule):
             self.model = self.make_resnet()
         elif net == "cnnlstm":
             self.model = self.make_cnn_lstm()
-        print('net: ', net)
         self.train_total = 0
         self.train_correct = 0
     
