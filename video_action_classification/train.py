@@ -21,6 +21,11 @@ Argparse
 '''
 parser = argparse.ArgumentParser()
 parser.add_argument(
+        "--dev",
+        help="dev mode",
+        action='store_true',
+        )
+parser.add_argument(
         "--train",
         help="train mode",
         action='store_true',
@@ -198,3 +203,19 @@ if __name__ == '__main__':
             accelerator="gpu",
             )
         trainer.test(model)
+    if args.dev:
+        model = VideoActionClassifier()
+        checkpoint_callback = ModelCheckpoint(
+            dirpath=ckpt_dir, 
+            filename='{epoch:02d}-{avg_val_loss:.2f}-{val_acc:.2f}',
+            save_top_k=5, 
+            mode="max",
+            monitor="val_acc"
+            )
+        trainer = pl.Trainer(
+            callbacks=[checkpoint_callback],
+            accelerator="gpu",
+            max_epochs=50,
+            fast_dev_run=True,
+            )
+        trainer.fit(model)
