@@ -67,7 +67,7 @@ class VideoActionDataset(Dataset):
         frame_list = frame_list[::4] # downsample to 1/4 frame rate
         if self.net == "resnet":
             frame_list = torch.permute(frame_list, (3, 0, 1, 2)) 
-        elif self.net == "cnnlstm":
+        elif self.net == "vgglstm":
             frame_list = torch.permute(frame_list, (0, 3, 1, 2))
         sample['video'] = frame_list
         if self.mode == "test":
