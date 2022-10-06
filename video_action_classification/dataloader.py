@@ -49,7 +49,7 @@ class VideoActionDataset(Dataset):
             Test
             '''
             #from PIL import Image
-            #if frame_count % 4 == 0:
+            #if frame_count % 8 == 0:
             #    print('frame_count: ', frame_count)
             #    pil_image=Image.fromarray(frame)
             #    pil_image.save(f'temp/{idx}_{frame_count}.jpeg')
@@ -64,7 +64,7 @@ class VideoActionDataset(Dataset):
         Stack all sample
         '''
         sample = {}
-        frame_list = frame_list[::4] # downsample to 1/4 frame rate
+        frame_list = frame_list[::8] # downsample to 1hz frame rate
         if self.net == "resnet":
             frame_list = torch.permute(frame_list, (3, 0, 1, 2)) 
         elif self.net == "vgglstm":
@@ -94,6 +94,6 @@ if __name__ == '__main__':
             print('video.shape: ', data['video'].shape)
             print('label: ', data['label'].shape)
         #(B, C, T, H, W)
-        assert data['video'].shape == torch.Size([batch_size, 3, 21, 90, 90]), 'Video shape should be (batch_size, 3, 82, 90, 90)'
+        assert data['video'].shape == torch.Size([batch_size, 3, 11, 90, 90]), 'Video shape should be (batch_size, 3, 11, 90, 90)'
         #(B)
         assert data['label'].shape == torch.Size([batch_size]), 'Label shape should be (batch_size)'
