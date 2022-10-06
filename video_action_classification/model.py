@@ -9,11 +9,7 @@ class VGGLSTM(nn.Module):
     def __init__(self, num_class=39):
         super(VGGLSTM, self).__init__()
         self.vgg = vgg16()
-        print(self.vgg)
-        self.vgg.fc = nn.Sequential(
-                nn.Linear(self.vgg.fc.in_features, 300)
-                )
-        self.lstm = nn.LSTM(input_size=300, hidden_size=256, num_layers=3)
+        self.lstm = nn.LSTM(input_size=1000, hidden_size=256, num_layers=3)
         self.fc1 = nn.Linear(256, 128)
         self.fc2 = nn.Linear(128, num_class)
 
