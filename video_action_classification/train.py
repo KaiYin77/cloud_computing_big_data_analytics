@@ -66,7 +66,7 @@ Train Config
 '''
 train_dir = Path('../data/hw1/train/')
 ckpt_dir = Path('./weights/')
-BATCHSIZE = 1
+BATCHSIZE = 12
 
 '''
 Test Config
@@ -191,7 +191,7 @@ if __name__ == '__main__':
         trainer = pl.Trainer(
             callbacks=[checkpoint_callback],
             accelerator="gpu",
-            max_epochs=50,
+            max_epochs=100,
             logger=wandb_logger,
             )
         trainer.fit(model)
