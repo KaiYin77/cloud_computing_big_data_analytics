@@ -8,8 +8,8 @@ from torchvision.models import vgg16
 class VGGLSTM(nn.Module):
     def __init__(self, num_class=39):
         super(VGGLSTM, self).__init__()
-        self.vgg = vgg16()
-        self.lstm = nn.LSTM(input_size=1000, hidden_size=256, num_layers=3)
+        self.vgg = vgg16(num_classes=512)
+        self.lstm = nn.LSTM(input_size=512, hidden_size=256, num_layers=3)
         self.fc1 = nn.Linear(256, 128)
         self.fc2 = nn.Linear(128, num_class)
 
