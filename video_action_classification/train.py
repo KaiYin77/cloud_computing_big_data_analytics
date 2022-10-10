@@ -8,7 +8,6 @@ from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
-import pytorchvideo.models.resnet
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
@@ -17,7 +16,7 @@ from pathlib import Path
 import os 
 import argparse
 
-from model import VGGLSTM
+from models.vgg_lstm import VGGLSTM
 
 '''
 Argparse
@@ -52,13 +51,13 @@ parser.add_argument(
 parser.add_argument(
         "--net", 
         help="specify net name", 
-        default="resnet", 
+        default="vgglstm", 
         type=str
         )
 args = parser.parse_args()
 
 '''
-Model Selection (resnet/vgglstm)
+Model Selection (vgglstm)
 '''
 NET = args.net
 
@@ -67,7 +66,7 @@ Train Config
 '''
 train_dir = Path('../data/hw1/train/')
 ckpt_dir = Path('./weights/')
-BATCHSIZE = 16
+BATCHSIZE = 1
 
 '''
 Test Config
@@ -77,11 +76,9 @@ test_mini_dir = Path('../data/hw1/test_mini/')
 ckpt_name = str(args.ckpt)
 
 class VideoActionClassifier(pl.LightningModule):
-    def __init__(self, net="resnet"):
+    def __init__(self, net="vgglstm"):
         super().__init__()
-        if net == "resnet": 
-            self.model = self.make_resnet()
-        elif net == "vgglstm":
+        if net == "vgglstm":
             self.model = self.make_vgg_lstm()
         self.train_total = 0
         self.train_correct = 0
@@ -91,22 +88,11 @@ class VideoActionClassifier(pl.LightningModule):
                 num_class=39
                 )
 
-    def make_resnet(self):
-        return pytorchvideo.models.resnet.create_resnet(
-                  input_channel=3,
-                  model_depth=50,
-                  model_num_class=39,
-                  norm=nn.BatchNorm3d,
-                  activation=nn.ReLU,
-                  head_pool_kernel_size=(4,3,3),
-              )
-
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-2)
         #optimizer = torch.optim.SGD(self.parameters(), lr=1e-2, weight_decay=1e-3, momentum=0.9)
-        #lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[50,100,150])
-        #return [optimizer], [lr_scheduler]
-        return optimizer
+        lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, step_size=30, gamma=0.1)
+        return [optimizer], [lr_scheduler]
     
     def training_step(self, train_batch, batch_idx):
         y_hat = self.model(train_batch["video"])
@@ -237,8 +223,8 @@ if __name__ == '__main__':
             dirpath=ckpt_dir, 
             filename=f'{NET}'+'-{epoch:02d}-{avg_val_loss:.2f}-{val_acc:.2f}',
             save_top_k=5, 
-            mode="max",
-            monitor="val_acc"
+            mode="min",
+            monitor="avg_val_loss"
             )
         trainer = pl.Trainer(
             callbacks=[checkpoint_callback],
