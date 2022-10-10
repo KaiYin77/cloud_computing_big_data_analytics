@@ -1,4 +1,5 @@
 data/
 video_action_classification/weights/
 video_action_classification/__pycache__/
+video_action_classification/models/__pycache__/
 video_action_classification/temp/
