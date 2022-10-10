@@ -91,7 +91,7 @@ class VideoActionClassifier(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-2)
         #optimizer = torch.optim.SGD(self.parameters(), lr=1e-2, weight_decay=1e-3, momentum=0.9)
-        lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, step_size=30, gamma=0.1)
+        lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
         return [optimizer], [lr_scheduler]
     
     def training_step(self, train_batch, batch_idx):
