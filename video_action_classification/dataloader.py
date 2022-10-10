@@ -15,7 +15,7 @@ from pathlib import Path
 import sys
 
 class VideoActionDataset(Dataset):
-    def __init__(self, raw_dir, mode="trainval", net="resnet"):
+    def __init__(self, raw_dir, mode="trainval", net="vgglstm"):
         self.raw_dir = raw_dir
         self.mode = mode
         self.net = net
@@ -71,9 +71,7 @@ class VideoActionDataset(Dataset):
         '''
         sample = {}
         frame_list = frame_list[::8] # downsample to 1hz frame rate
-        if self.net == "resnet":
-            frame_list = torch.permute(frame_list, (1, 0, 2, 3)) 
-        elif self.net == "vgglstm":
+        if self.net == "vgglstm":
             frame_list = torch.permute(frame_list, (0, 1, 2, 3))
         sample['video'] = frame_list
         if self.mode == "test":
@@ -100,6 +98,6 @@ if __name__ == '__main__':
             print('video.shape: ', data['video'].shape)
             print('label: ', data['label'].shape)
         #(B, C, T, H, W)
-        assert data['video'].shape == torch.Size([batch_size, 3, 11, 90, 90]), 'Video shape should be (batch_size, 3, 11, 90, 90)'
+        assert data['video'].shape == torch.Size([batch_size, 11, 3, 90, 90]), 'Video shape should be (batch_size, 11, 3, 90, 90)'
         #(B)
         assert data['label'].shape == torch.Size([batch_size]), 'Label shape should be (batch_size)'
