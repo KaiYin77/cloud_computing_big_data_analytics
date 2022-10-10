@@ -4,6 +4,7 @@ import cv2
 
 import torch
 from torch.utils.data import Dataset, DataLoader
+import torchvision.transforms as transforms
 
 import os; os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 from os import listdir
@@ -23,6 +24,10 @@ class VideoActionDataset(Dataset):
         self.height = 90
         self.width = 90
         self.channel = 3
+        self.transform = transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+            ])
 
     def __len__(self):
         return len(self.all_video_list)
@@ -36,7 +41,7 @@ class VideoActionDataset(Dataset):
             sucess = False
             print('loading .mp4 error...')
 
-        frame_list = torch.zeros(self.max_len, self.height, self.width, self.channel)
+        frame_list = torch.zeros(self.max_len, self.channel, self.height, self.width)
         frame_count = 0
         while(success):
             success, frame = cap.read()
@@ -44,7 +49,8 @@ class VideoActionDataset(Dataset):
                 break
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame = cv2.resize(frame, (self.height, self.width), interpolation=cv2.INTER_AREA)
-            
+
+            frame = self.transform(frame)
             '''
             Test
             '''
@@ -54,9 +60,9 @@ class VideoActionDataset(Dataset):
             #    pil_image=Image.fromarray(frame)
             #    pil_image.save(f'temp/{idx}_{frame_count}.jpeg')
             '''
-            Perform linear transformation to 0~1
+            Append
             '''
-            frame_list[frame_count] = torch.from_numpy(frame)/255.0
+            frame_list[frame_count] = frame
             frame_count += 1
 
         
@@ -66,9 +72,9 @@ class VideoActionDataset(Dataset):
         sample = {}
         frame_list = frame_list[::8] # downsample to 1hz frame rate
         if self.net == "resnet":
-            frame_list = torch.permute(frame_list, (3, 0, 1, 2)) 
+            frame_list = torch.permute(frame_list, (1, 0, 2, 3)) 
         elif self.net == "vgglstm":
-            frame_list = torch.permute(frame_list, (0, 3, 1, 2))
+            frame_list = torch.permute(frame_list, (0, 1, 2, 3))
         sample['video'] = frame_list
         if self.mode == "test":
           sample['video_name'] = os.path.basename(video_path)
