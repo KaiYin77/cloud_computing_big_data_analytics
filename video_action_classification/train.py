@@ -17,6 +17,7 @@ import os
 import argparse
 
 from models.vgg_lstm import VGGLSTM
+from models.resnet_lstm import ResNetLSTM
 
 '''
 Argparse
@@ -57,7 +58,7 @@ parser.add_argument(
 args = parser.parse_args()
 
 '''
-Model Selection (vgglstm)
+Model Selection (vgglstm/resnetlstm)
 '''
 NET = args.net
 
@@ -80,6 +81,8 @@ class VideoActionClassifier(pl.LightningModule):
         super().__init__()
         if net == "vgglstm":
             self.model = self.make_vgg_lstm()
+        elif net == "resnetlstm":
+            self.model = self.make_resnet_lstm()
         self.train_total = 0
         self.train_correct = 0
     
@@ -87,17 +90,21 @@ class VideoActionClassifier(pl.LightningModule):
         return VGGLSTM(
                 num_class=39
                 )
+    def make_resnet_lstm(self):
+        return ResNetLSTM(
+                num_class=39
+                )
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=5e-2)
-        #optimizer = torch.optim.SGD(self.parameters(), lr=1e-2, weight_decay=1e-3, momentum=0.9)
-        lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.5)
-        return [optimizer], [lr_scheduler]
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=30, gamma=0.1)
+        return [self.optimizer], [self.lr_scheduler]
     
     def training_step(self, train_batch, batch_idx):
         y_hat = self.model(train_batch["video"])
         loss = F.cross_entropy(y_hat, train_batch["label"])
         self.log("train_loss", loss.item(), prog_bar=True)
+        self.log("lr", (self.optimizer).param_groups[0]['lr'])
         
         conf, index = y_hat.max(-1)
         self.train_total += train_batch['label'].size(0)
