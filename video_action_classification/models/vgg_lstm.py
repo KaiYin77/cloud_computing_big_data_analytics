@@ -1,4 +1,4 @@
-import torch
+
 import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence
 import torch.nn.functional as F
@@ -13,6 +13,7 @@ class VGGLSTM(pl.LightningModule):
         self.lstm = nn.LSTM(input_size=300, hidden_size=256, num_layers=3)
         self.linear_1 = nn.Linear(2816, 256)
         self.linear_2 = nn.Linear(256, num_class)
+        self.dropout = nn.Dropout(p=0.5)
 
     def init_hidden(self, batch_size):
         return(
@@ -28,6 +29,7 @@ class VGGLSTM(pl.LightningModule):
             output, hidden = self.lstm(x.unsqueeze(0), hidden)
             outputs.append(output)
         outputs = torch.cat(outputs, dim=-1)
-        x = self.linear_1(outputs[-1, :, :])
-        x = self.linear_2(x)
-        return x
+        outputs = self.dropout(outputs)
+        outputs = self.linear_1(outputs[-1, :, :])
+        outputs = self.linear_2(outputs)
+        return outputs
