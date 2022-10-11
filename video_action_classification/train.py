@@ -17,7 +17,6 @@ import os
 import argparse
 
 from models.vgg_lstm import VGGLSTM
-from models.resnet_lstm import ResNetLSTM
 
 '''
 Argparse
@@ -67,7 +66,7 @@ Train Config
 '''
 train_dir = Path('../data/hw1/train/')
 ckpt_dir = Path('./weights/')
-BATCHSIZE = 12
+BATCHSIZE = 24
 
 '''
 Test Config
@@ -81,17 +80,11 @@ class VideoActionClassifier(pl.LightningModule):
         super().__init__()
         if net == "vgglstm":
             self.model = self.make_vgg_lstm()
-        elif net == "resnetlstm":
-            self.model = self.make_resnet_lstm()
         self.train_total = 0
         self.train_correct = 0
     
     def make_vgg_lstm(self):
         return VGGLSTM(
-                num_class=39
-                )
-    def make_resnet_lstm(self):
-        return ResNetLSTM(
                 num_class=39
                 )
 
