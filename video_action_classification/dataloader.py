@@ -71,8 +71,8 @@ class VideoActionDataset(Dataset):
         '''
         sample = {}
         frame_list = frame_list[::8] # downsample to 1hz frame rate
-        if self.net == "vgglstm":
-            frame_list = torch.permute(frame_list, (0, 1, 2, 3))
+        #if self.net == "vgglstm":
+        frame_list = torch.permute(frame_list, (0, 1, 2, 3))
         sample['video'] = frame_list
         if self.mode == "test":
           sample['video_name'] = os.path.basename(video_path)
