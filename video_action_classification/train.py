@@ -89,9 +89,9 @@ class VideoActionClassifier(pl.LightningModule):
                 )
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-2)
+        optimizer = torch.optim.Adam(self.parameters(), lr=5e-2)
         #optimizer = torch.optim.SGD(self.parameters(), lr=1e-2, weight_decay=1e-3, momentum=0.9)
-        lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
+        lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.5)
         return [optimizer], [lr_scheduler]
     
     def training_step(self, train_batch, batch_idx):
@@ -142,7 +142,7 @@ class VideoActionClassifier(pl.LightningModule):
         self.dataset = VideoActionDataset(train_dir, net=NET)
         self.test_dataset = VideoActionDataset(test_dir, mode="test", net=NET)
 
-        val_split = 0.15
+        val_split = 0.20
         random_seed = 7777
         dataset_size = len(self.dataset)
         indices = list(range(dataset_size))
