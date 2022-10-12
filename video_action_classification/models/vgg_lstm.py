@@ -11,7 +11,7 @@ class VGGLSTM(pl.LightningModule):
     def __init__(self, num_class=39):
         super(VGGLSTM, self).__init__()
         self.vgg = vgg16(pretrained=False).features[:28]
-        self.lstm = nn.LSTM(input_size=12800, hidden_size=30, num_layers=1)
+        self.lstm = nn.LSTM(input_size=25088, hidden_size=30, num_layers=1)
         self.pooling = nn.AdaptiveAvgPool1d(1)
         self.linear_1 = nn.Linear(30, 90)
         self.linear_2 = nn.Linear(90, 512)

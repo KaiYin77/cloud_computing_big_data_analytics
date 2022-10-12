@@ -21,8 +21,8 @@ class VideoActionDataset(Dataset):
         self.net = net
         self.all_video_list = sorted(self.raw_dir.rglob("*.mp4"))
         self.max_len = 82
-        self.height = 90
-        self.width = 90
+        self.height = 112
+        self.width = 112
         self.channel = 3
         self.transform = transforms.Compose([
                 transforms.ToTensor(),
@@ -70,7 +70,7 @@ class VideoActionDataset(Dataset):
         Stack all sample
         '''
         sample = {}
-        frame_list = frame_list[::8] # downsample to 1hz frame rate
+        frame_list = frame_list[::3] # downsample to 1hz frame rate
         #if self.net == "vgglstm":
         frame_list = torch.permute(frame_list, (0, 1, 2, 3))
         sample['video'] = frame_list
