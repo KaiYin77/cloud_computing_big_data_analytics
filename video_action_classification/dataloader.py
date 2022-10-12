@@ -71,7 +71,6 @@ class VideoActionDataset(Dataset):
         '''
         sample = {}
         frame_list = frame_list[::3] # downsample to 1hz frame rate
-        #if self.net == "vgglstm":
         frame_list = torch.permute(frame_list, (0, 1, 2, 3))
         sample['video'] = frame_list
         if self.mode == "test":
@@ -98,6 +97,6 @@ if __name__ == '__main__':
             print('video.shape: ', data['video'].shape)
             print('label: ', data['label'].shape)
         #(B, C, T, H, W)
-        assert data['video'].shape == torch.Size([batch_size, 11, 3, 90, 90]), 'Video shape should be (batch_size, 11, 3, 90, 90)'
+        assert data['video'].shape == torch.Size([batch_size, 11, 3, 112, 112]), 'Video shape should be (batch_size, 11, 3, 90, 90)'
         #(B)
         assert data['label'].shape == torch.Size([batch_size]), 'Label shape should be (batch_size)'
