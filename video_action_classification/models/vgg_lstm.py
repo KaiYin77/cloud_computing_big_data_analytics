@@ -3,18 +3,19 @@ import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence
 import torch.nn.functional as F
 import pytorch_lightning as pl
-from torchvision.models import vgg11
+from torchvision.models import vgg16
 torch.manual_seed(99)
 import ipdb
 
 class VGGLSTM(pl.LightningModule):
     def __init__(self, num_class=39):
         super(VGGLSTM, self).__init__()
-        self.vgg = vgg11(pretrained=False).features[:28]
+        self.vgg = vgg16(pretrained=False).features[:28]
         #self.lstm = nn.LSTM(input_size=4608, hidden_size=30, num_layers=1)
         self.pooling = nn.AdaptiveAvgPool1d(1)
         #self.linear_1 = nn.Linear(30, 90)
-        self.linear_1 = nn.Linear(4608, 90)
+        #self.linear_1 = nn.Linear(4608, 90)
+        self.linear_1 = nn.Linear(25088, 90)
         self.linear_2 = nn.Linear(90, 512)
         self.linear_3 = nn.Linear(512, num_class)
         self.dropout_1 = nn.Dropout(p=0.1)

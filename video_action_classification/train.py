@@ -90,7 +90,7 @@ class VideoActionClassifier(pl.LightningModule):
 
     def configure_optimizers(self):
         self.optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
-        self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=30, gamma=0.1)
+        self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=5, gamma=0.1)
         return [self.optimizer], [self.lr_scheduler]
     
     def training_step(self, train_batch, batch_idx):
@@ -105,6 +105,10 @@ class VideoActionClassifier(pl.LightningModule):
         self.log('train_acc', self.train_correct/self.train_total, prog_bar=True)
         return loss
     
+    def training_epoch_end(self, outputs):
+        self.train_total = 0
+        self.train_correct = 0
+
     def validation_step(self, val_batch, val_idx):
         y_hat = self.model(val_batch["video"])
         loss = F.cross_entropy(y_hat, val_batch["label"])
