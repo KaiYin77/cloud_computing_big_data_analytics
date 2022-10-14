@@ -197,7 +197,8 @@ if __name__ == '__main__':
             accelerator="gpu",
             max_epochs=100,
             logger=wandb_logger,
-            gradient_clip_val=1
+            gradient_clip_val=1,
+            track_grad_norm=2,
             )
         trainer.fit(model)
     if args.validate:
