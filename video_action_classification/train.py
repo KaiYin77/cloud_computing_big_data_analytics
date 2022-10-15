@@ -85,7 +85,7 @@ class VideoActionClassifier(pl.LightningModule):
     
     def make_vgg_lstm(self):
         return VGGLSTM(
-                num_class=39
+                num_classes=39
                 )
 
     def configure_optimizers(self):
