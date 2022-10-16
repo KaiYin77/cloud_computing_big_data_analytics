@@ -17,6 +17,7 @@ import os
 import argparse
 
 from models.vgg_lstm import VGGLSTM
+from models.res_lstm import RESLSTM
 
 '''
 Argparse
@@ -45,7 +46,7 @@ parser.add_argument(
 parser.add_argument(
         "--ckpt", 
         help="specify ckpt name", 
-        default="epoch=11", 
+        default="", 
         type=str
         )
 parser.add_argument(
@@ -80,11 +81,18 @@ class VideoActionClassifier(pl.LightningModule):
         super().__init__()
         if net == "vgglstm":
             self.model = self.make_vgg_lstm()
+        elif net == "reslstm":
+            self.model = self.make_res_lstm()
         self.train_total = 0
         self.train_correct = 0
     
     def make_vgg_lstm(self):
         return VGGLSTM(
+                num_classes=39
+                )
+
+    def make_res_lstm(self):
+        return RESLSTM(
                 num_classes=39
                 )
 
@@ -201,17 +209,29 @@ if __name__ == '__main__':
             mode="min",
             monitor="avg_val_loss"
             )
-        trainer = pl.Trainer(
-            callbacks=[checkpoint_callback],
-            accelerator="gpu",
-            max_epochs=50,
-            logger=wandb_logger,
-            gradient_clip_val=1,
-            track_grad_norm=2,
-            )
+        if args.ckpt != "":
+            ckpt_path='weights/' + ckpt_name
+            trainer = pl.Trainer(
+                callbacks=[checkpoint_callback],
+                accelerator="gpu",
+                max_epochs=50,
+                logger=wandb_logger,
+                gradient_clip_val=1,
+                track_grad_norm=2,
+                resume_from_checkpoint=ckpt_path
+                )
+        else:
+            trainer = pl.Trainer(
+                callbacks=[checkpoint_callback],
+                accelerator="gpu",
+                max_epochs=50,
+                logger=wandb_logger,
+                gradient_clip_val=1,
+                track_grad_norm=2,
+                )
         trainer.fit(model)
     if args.validate:
-        ckpt_path='weights/' + ckpt_name + '.ckpt'
+        ckpt_path='weights/' + ckpt_name
         model = VideoActionClassifier.load_from_checkpoint(
                 checkpoint_path=ckpt_path,
                 net=NET,
@@ -222,7 +242,7 @@ if __name__ == '__main__':
             )
         trainer.validate(model)
     if args.test:
-        ckpt_path='weights/' + ckpt_name + '.ckpt'
+        ckpt_path='weights/' + ckpt_name
         model = VideoActionClassifier.load_from_checkpoint(
                 checkpoint_path=ckpt_path,
                 net=NET,
