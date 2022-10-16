@@ -48,7 +48,7 @@ python train.py --train --net vgglstm
 ## Make Prediction
 
 ```sh
-python train.py --test --net vgglstm --ckpt xxxxx (wo/ .ckpt extension)
+python train.py --test --net vgglstm --ckpt xxxxx.ckpt 
 ```
 ---
 
