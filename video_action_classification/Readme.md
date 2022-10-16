@@ -40,9 +40,13 @@ pip3 install -r requirements.txt
 
 
 ## Training Mode
-
+__train from scratch__
 ```sh
 python train.py --train --net vgglstm
+```
+__resume from epoch__
+```sh
+python train.py --train --net vgglstm --ckpt xxxxx.ckpt 
 ```
 
 ## Make Prediction
@@ -65,5 +69,5 @@ python dataloader
 ## Validation Mode
 
 ```sh
-python train.py --validate --net vgglstm --ckpt xxxxx (wo/ .ckpt extension)
+python train.py --validate --net vgglstm --ckpt xxxxx.ckpt
 ```
