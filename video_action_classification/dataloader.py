@@ -21,12 +21,13 @@ class VideoActionDataset(Dataset):
         self.net = net
         self.all_video_list = sorted(self.raw_dir.rglob("*.mp4"))
         self.max_len = 82
-        self.height = 112
-        self.width = 112
+        self.size = (112, 112)
         self.channel = 3
         self.transform = transforms.Compose([
                 transforms.ToTensor(),
+                transforms.Resize(self.size),
                 transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+                transforms.RandomHorizontalFlip(p=0.5),
             ])
 
     def __len__(self):
@@ -41,16 +42,15 @@ class VideoActionDataset(Dataset):
             sucess = False
             print('loading .mp4 error...')
 
-        frame_list = torch.zeros(self.max_len, self.channel, self.height, self.width)
+        frame_list = torch.zeros(self.max_len, self.channel, self.size[0], self.size[1])
         frame_count = 0
         while(success):
             success, frame = cap.read()
             if success is False:
                 break
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frame = cv2.resize(frame, (self.height, self.width), interpolation=cv2.INTER_AREA)
-
             frame = self.transform(frame)
+
             '''
             Test
             '''
