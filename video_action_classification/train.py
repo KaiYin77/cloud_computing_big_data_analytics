@@ -109,7 +109,6 @@ class VideoActionClassifier(pl.LightningModule):
         loss = F.cross_entropy(y_hat, train_batch["label"])
         self.log("train_loss", loss.item(), prog_bar=True)
         self.log("lr", (self.optimizer).param_groups[0]['lr'])
-        
         conf, index = y_hat.max(-1)
         self.train_total += train_batch['label'].size(0)
         self.train_correct += (index == train_batch['label']).sum().item()
@@ -123,16 +122,15 @@ class VideoActionClassifier(pl.LightningModule):
     def validation_step(self, val_batch, val_idx):
         y_hat = self.model(val_batch["video"])
         loss = F.cross_entropy(y_hat, val_batch["label"])
-
         conf, index = y_hat.max(-1)
         val_correct = (index == val_batch['label']).sum().item()
-        return {'val_loss': loss, 'val_correct': val_correct}
+        return {'val_loss': loss.item(), 'val_correct': val_correct}
     
     def validation_epoch_end(self, outputs):
         total_loss = 0
         total_correct = 0
         for output in outputs:
-            total_loss += output['val_loss'].item()
+            total_loss += output['val_loss']
             total_correct += output['val_correct']
         self.log('avg_val_loss', total_loss / len(outputs))
         self.log('val_acc', total_correct / len(outputs))
@@ -200,13 +198,13 @@ if __name__ == '__main__':
             dirpath=ckpt_dir, 
             filename=f'{NET}'+'-{epoch:02d}-{avg_val_loss:.2f}-{val_acc:.2f}',
             save_top_k=5, 
-            mode="max",
-            monitor="val_acc"
+            mode="min",
+            monitor="avg_val_loss"
             )
         trainer = pl.Trainer(
             callbacks=[checkpoint_callback],
             accelerator="gpu",
-            max_epochs=100,
+            max_epochs=50,
             logger=wandb_logger,
             gradient_clip_val=1,
             track_grad_norm=2,
