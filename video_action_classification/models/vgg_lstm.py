@@ -10,15 +10,18 @@ import ipdb
 class VGGLSTM(pl.LightningModule):
     def __init__(self, num_classes=39):
         super(VGGLSTM, self).__init__()
-        self.vgg = vgg16(pretrained=False, num_classes=num_classes, dropout=0).features
+        self.vgg = vgg16(pretrained=False, num_classes=num_classes, dropout=0.5).features
         self.lstm = nn.LSTM(input_size=4608, hidden_size=256, num_layers=1)
         self.mlp = nn.Sequential(
                   nn.Linear(256*28, 256),
                   nn.ReLU(),
+                  nn.Dropout(p=0.2),
                   nn.Linear(256, 256),
                   nn.ReLU(),
+                  nn.Dropout(p=0.2),
                   nn.Linear(256, 256),
                   nn.ReLU(),
+                  nn.Dropout(p=0.1),
                   nn.Linear(256, num_classes),
         )
 
