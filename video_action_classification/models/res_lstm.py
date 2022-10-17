@@ -3,14 +3,14 @@ import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence
 import torch.nn.functional as F
 import pytorch_lightning as pl
-from torchvision.models import resnet18
+from torchvision.models import resnet34 as resnet
 torch.manual_seed(99)
 import ipdb
 
 class RESLSTM(pl.LightningModule):
     def __init__(self, num_classes=39):
         super(RESLSTM, self).__init__()
-        model = resnet18(pretrained=False, num_classes=num_classes)
+        model = resnet(pretrained=False, num_classes=num_classes)
         self.resnet = nn.Sequential(*(list(model.children())[:-1]))
         self.lstm = nn.LSTM(input_size=512, hidden_size=256, num_layers=1)
         self.mlp = nn.Sequential(
