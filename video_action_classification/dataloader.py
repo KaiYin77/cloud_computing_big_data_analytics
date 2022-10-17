@@ -30,6 +30,7 @@ class VideoActionDataset(Dataset):
             ])
         self.augment = transforms.Compose([
                 transforms.RandomHorizontalFlip(p=0.5),
+                transforms.RandomRotation(30, resample=Image.BICUBIC, expand=False),
             ])
 
     def __len__(self):
