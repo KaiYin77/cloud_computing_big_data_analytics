@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import cv2
+import PIL.Image as Image
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -57,7 +58,6 @@ class VideoActionDataset(Dataset):
             '''
             Test
             '''
-            #from PIL import Image
             #if frame_count % 8 == 0:
             #    print('frame_count: ', frame_count)
             #    f = frame * 255 
