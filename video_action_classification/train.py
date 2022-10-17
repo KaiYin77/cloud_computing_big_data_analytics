@@ -67,7 +67,7 @@ Train Config
 '''
 train_dir = Path('../data/hw1/train/')
 ckpt_dir = Path('./weights/')
-BATCHSIZE = 12
+BATCHSIZE = 16
 
 '''
 Test Config
@@ -97,9 +97,9 @@ class VideoActionClassifier(pl.LightningModule):
                 )
 
     def configure_optimizers(self):
-        self.warmup_epoch = 3
+        self.warmup_epoch = 5
         self.optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
-        self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=5, gamma=0.5)
+        self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=10, gamma=0.5)
         return [self.optimizer], [self.lr_scheduler]
 
     def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_idx, optimizer_closure, on_tpu=False, using_native_amp=False, using_lbfgs=False):
