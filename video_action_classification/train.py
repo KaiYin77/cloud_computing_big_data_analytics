@@ -18,6 +18,7 @@ import argparse
 
 from models.vgg_lstm import VGGLSTM
 from models.res_lstm import RESLSTM
+from models.resnet import RESNET
 
 '''
 Argparse
@@ -83,6 +84,8 @@ class VideoActionClassifier(pl.LightningModule):
             self.model = self.make_vgg_lstm()
         elif net == "reslstm":
             self.model = self.make_res_lstm()
+        elif net == "resnet":
+            self.model = self.make_resnet()
         self.train_total = 0
         self.train_correct = 0
     
@@ -93,6 +96,11 @@ class VideoActionClassifier(pl.LightningModule):
 
     def make_res_lstm(self):
         return RESLSTM(
+                num_classes=39
+                )
+
+    def make_resnet(self):
+        return RESNET(
                 num_classes=39
                 )
 
