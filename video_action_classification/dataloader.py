@@ -27,6 +27,8 @@ class VideoActionDataset(Dataset):
                 transforms.ToTensor(),
                 transforms.Resize(self.size),
                 transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+            ])
+        self.augment = transforms.Compose([
                 transforms.RandomHorizontalFlip(p=0.5),
             ])
 
@@ -57,7 +59,10 @@ class VideoActionDataset(Dataset):
             #from PIL import Image
             #if frame_count % 8 == 0:
             #    print('frame_count: ', frame_count)
-            #    pil_image=Image.fromarray(frame)
+            #    f = frame * 255 
+            #    f = f.permute(1,2,0)
+            #    print('frame: ', f.shape)
+            #    pil_image=Image.fromarray(np.uint8(f.numpy()))
             #    pil_image.save(f'temp/{idx}_{frame_count}.jpeg')
             '''
             Append
@@ -65,11 +70,11 @@ class VideoActionDataset(Dataset):
             frame_list[frame_count] = frame
             frame_count += 1
 
-        
         '''
         Stack all sample
         '''
         sample = {}
+        frame_list = self.augment(frame_list)
         frame_list = frame_list[::3] # downsample to 1hz frame rate
         frame_list = torch.permute(frame_list, (0, 1, 2, 3))
         sample['video'] = frame_list
@@ -97,6 +102,7 @@ if __name__ == '__main__':
             print('video.shape: ', data['video'].shape)
             print('label: ', data['label'].shape)
         #(B, C, T, H, W)
-        assert data['video'].shape == torch.Size([batch_size, 11, 3, 112, 112]), 'Video shape should be (batch_size, 11, 3, 90, 90)'
+        assert data['video'].shape == torch.Size([batch_size, 28, 3, 112, 112]), 'Video shape should be (batch_size, 28, 3, 112, 112)'
         #(B)
         assert data['label'].shape == torch.Size([batch_size]), 'Label shape should be (batch_size)'
+        exit() 
