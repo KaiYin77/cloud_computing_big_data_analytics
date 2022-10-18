@@ -8,9 +8,12 @@ from torch import nn
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
+
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.callbacks.early_stopping import EarlyStopping
+
 from dataloader import VideoActionDataset 
 from pathlib import Path
 import os 
@@ -68,7 +71,7 @@ Train Config
 '''
 train_dir = Path('../data/hw1/train/')
 ckpt_dir = Path('./weights/')
-BATCHSIZE = 16
+BATCHSIZE = 32
 
 '''
 Test Config
@@ -105,9 +108,9 @@ class VideoActionClassifier(pl.LightningModule):
                 )
 
     def configure_optimizers(self):
-        self.warmup_epoch = 5
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=1e-4)
-        self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=10, gamma=0.5)
+        self.warmup_epoch = 3
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=10, gamma=0.75)
         return [self.optimizer], [self.lr_scheduler]
 
     def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_idx, optimizer_closure, on_tpu=False, using_native_amp=False, using_lbfgs=False):
@@ -217,10 +220,16 @@ if __name__ == '__main__':
             mode="min",
             monitor="avg_val_loss"
             )
+        early_stop_callback = EarlyStopping(
+            monitor="avg_val_loss",
+            mode="min",
+            patience=3,
+        
+        )
         if args.ckpt != "":
             ckpt_path='weights/' + ckpt_name
             trainer = pl.Trainer(
-                callbacks=[checkpoint_callback],
+                callbacks=[checkpoint_callback, early_stop_callback],
                 accelerator="gpu",
                 max_epochs=50,
                 logger=wandb_logger,
@@ -230,7 +239,7 @@ if __name__ == '__main__':
                 )
         else:
             trainer = pl.Trainer(
-                callbacks=[checkpoint_callback],
+                callbacks=[checkpoint_callback, early_stop_callback],
                 accelerator="gpu",
                 max_epochs=50,
                 logger=wandb_logger,
