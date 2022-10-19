@@ -75,7 +75,8 @@ class VideoActionDataset(Dataset):
         Stack all sample
         '''
         sample = {}
-        frame_list = self.augment(frame_list)
+        if self.mode != "test":
+          frame_list = self.augment(frame_list)
         frame_list = frame_list[::4] # downsample to 1hz frame rate
         frame_list = frame_list[4:-1] # downsample to 1hz frame rate
         frame_list = torch.permute(frame_list, (0, 1, 2, 3))
