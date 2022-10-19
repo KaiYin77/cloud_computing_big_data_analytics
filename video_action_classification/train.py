@@ -110,7 +110,7 @@ class VideoActionClassifier(pl.LightningModule):
     def configure_optimizers(self):
         self.warmup_epoch = 3
         self.optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
-        self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=10, gamma=0.75)
+        self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=6, gamma=0.75)
         return [self.optimizer], [self.lr_scheduler]
 
     def optimizer_step(self, epoch, batch_idx, optimizer, optimizer_idx, optimizer_closure, on_tpu=False, using_native_amp=False, using_lbfgs=False):
@@ -216,14 +216,14 @@ if __name__ == '__main__':
         checkpoint_callback = ModelCheckpoint(
             dirpath=ckpt_dir, 
             filename=f'{NET}'+'-{epoch:02d}-{avg_val_loss:.2f}-{val_acc:.2f}',
-            save_top_k=6, 
+            save_top_k=5, 
             mode="min",
             monitor="avg_val_loss"
             )
         early_stop_callback = EarlyStopping(
             monitor="avg_val_loss",
             mode="min",
-            patience=6,
+            patience=10,
         
         )
         if args.ckpt != "":

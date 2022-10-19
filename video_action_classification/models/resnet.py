@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence
 import torch.nn.functional as F
 import pytorch_lightning as pl
-from torchvision.models import resnet34 as resnet
+from torchvision.models import resnet18 as resnet
 torch.manual_seed(99)
 import ipdb
 
