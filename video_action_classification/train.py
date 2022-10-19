@@ -160,7 +160,7 @@ class VideoActionClassifier(pl.LightningModule):
         return {'video_name': test_batch['video_name'][0], 'predict': index.item()}
 
     def test_epoch_end(self, outputs):
-        submit_file='submit/' + ckpt_name + '.csv'
+        submit_file='submit/' + ckpt_name[:-5] + '.csv'
         file = open(submit_file, 'w')
         writer = csv.writer(file)
         data=["name", "label"]
