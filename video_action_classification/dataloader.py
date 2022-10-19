@@ -30,6 +30,7 @@ class VideoActionDataset(Dataset):
                 transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
             ])
         self.augment = transforms.Compose([
+                transforms.RandomCrop(128, padding=16),
                 transforms.RandomHorizontalFlip(p=0.5),
                 transforms.RandomRotation(30, expand=False),
             ])
