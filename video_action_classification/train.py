@@ -216,14 +216,14 @@ if __name__ == '__main__':
         checkpoint_callback = ModelCheckpoint(
             dirpath=ckpt_dir, 
             filename=f'{NET}'+'-{epoch:02d}-{avg_val_loss:.2f}-{val_acc:.2f}',
-            save_top_k=5, 
+            save_top_k=6, 
             mode="min",
             monitor="avg_val_loss"
             )
         early_stop_callback = EarlyStopping(
             monitor="avg_val_loss",
             mode="min",
-            patience=3,
+            patience=6,
         
         )
         if args.ckpt != "":
