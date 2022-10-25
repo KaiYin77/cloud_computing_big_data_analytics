@@ -174,7 +174,7 @@ class VideoActionClassifier(pl.LightningModule):
         self.dataset = VideoActionDataset(train_dir, net=NET)
         self.test_dataset = VideoActionDataset(test_dir, mode="test", net=NET)
 
-        val_split = 0.15
+        val_split = 0.2
         random_seed = 7777
         dataset_size = len(self.dataset)
         indices = list(range(dataset_size))
