@@ -1,7 +1,7 @@
 numpy
 opencv-python
 pandas
-pytorch-lightning	  
+pytorch-lightning==1.7.7
 pytorchvideo==0.1.5
 torch==1.12.1
 torchvision==0.13.1

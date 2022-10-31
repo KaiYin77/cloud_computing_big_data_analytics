@@ -17,7 +17,7 @@ def nt_xent(
     z = torch.cat([u, v], dim=0)                   # [2N, C]
     z = F.normalize(z, p=2, dim=1)                 # [2N, C]
     s = torch.matmul(z, z.t()) / temperature       # [2N, 2N] similarity matrix
-    mask = torch.eye(2 * N).bool().to(device)                # [2N, 2N] identity matrix
+    mask = torch.eye(2 * N).bool().to(z.device)    # [2N, 2N] identity matrix
     s = torch.masked_fill(s, mask, -float('inf'))  # fill the diagonal with negative infinity
     label = torch.cat([                            # [2N]
         torch.arange(N, 2 * N),                    # {N, ..., 2N - 1}

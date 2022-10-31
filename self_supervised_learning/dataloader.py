@@ -102,11 +102,12 @@ class MRIDataset(Dataset):
         return sample
 
 if __name__ == '__main__':
-    ''' Unit test
+    '''
+    Unit test
     '''
     batch_size = 4096
-    unlabeled_dir = Path(config['data']['unlabeled'])
-    dataset = MRIDataset(unlabeled_dir) 
+    unlabeled_dir = Path('../data/hw2/unlabeled/')
+    dataset = MRIDataset(unlabeled_dir, mode="train") 
     dataloader = DataLoader(dataset, batch_size=batch_size)
     dataiter = tqdm(dataloader)
     for i, data in enumerate(dataiter):

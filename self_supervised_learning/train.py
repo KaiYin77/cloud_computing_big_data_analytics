@@ -200,10 +200,10 @@ if __name__ == '__main__':
         model = SSRL()
         checkpoint_callback = ModelCheckpoint(
             dirpath=_ckpt_dir, 
-            filename='{epoch:02d}-{train_loss:.2f}',
+            filename='{epoch:02d}-{train_loss:.2f}-{val_acc:.2f}',
             save_top_k=_save_top_k, 
-            mode="min",
-            monitor="train_loss"
+            mode="max",
+            monitor="val_acc"
             )
         trainer = pl.Trainer(
             callbacks=[checkpoint_callback],
