@@ -17,60 +17,44 @@ import configparser
 from tqdm import tqdm
 from pathlib import Path
 
+from utils import GaussianBlur
+
 '''
 ConfigParser
 '''
 config =  configparser.ConfigParser()
 config.read('config.ini')
 
-class GaussianBlur():
-    def __init__(self, kernel_size, sigma_min=0.1, sigma_max=2.0):
-        self.sigma_min = sigma_min
-        self.sigma_max = sigma_max
-        self.kernel_size = kernel_size
-
-    def __call__(self, img):
-        sigma = np.random.uniform(self.sigma_min, self.sigma_max)
-        img = cv2.GaussianBlur(np.array(img), (self.kernel_size, self.kernel_size), sigma)
-        return Image.fromarray(img.astype(np.uint8))
-
 class MRIDataset(Dataset):
     def __init__(self, raw_dir, mode="train"):
         self.raw_dir = Path(raw_dir)
         self.mode = mode
         self.image_list = sorted(self.raw_dir.rglob("*.jpg"))
-        self.size = (96, 96)
+        self.size = 96
 
     def __len__(self):
         return len(self.image_list)
 
+    def get_simclr_pipeline_transform(self, size, s=1):
+        color_jitter = transforms.ColorJitter(0.8 * s, 0.8 * s, 0.8 * s, 0.2 * s)
+        data_transforms = transforms.Compose([
+            transforms.RandomResizedCrop(size=size),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomApply([color_jitter], p=0.8),
+            transforms.RandomGrayscale(p=0.2),
+            GaussianBlur(kernel_size=int(0.1 * size)),
+            transforms.ToTensor()
+        ])
+        return data_transforms  
+
     def __getitem__(self, idx):
         image_path = str(self.image_list[idx])
         image = Image.open(image_path) 
-        image = np.array(image) 
         
         if self.mode == "train":
             ''' Transform
             '''
-            transform = transforms.Compose([
-	    	transforms.RandomApply(
-	    		[GaussianBlur(kernel_size=23)], 
-	    		p=0.1
-	    	),
-	    	transforms.ToTensor(),
-                    transforms.RandomCrop(
-	    		self.size, 
-	    		padding=16
-	    	),
-	    	transforms.ColorJitter(
-	    		brightness=0.5, 
-	    		contrast=0.5, 
-	    		saturation=0.5, 
-	    		hue=0.5
-	    	),
-                    transforms.RandomHorizontalFlip(p=0.5)
-	    ])
-            
+            transform = self.get_simclr_pipeline_transform(self.size) 
             image_t1 = transform(image)
             image_t2 = transform(image)
 	
@@ -80,6 +64,7 @@ class MRIDataset(Dataset):
             sample['image_t1'] = image_t1
             sample['image_t2'] = image_t2
         elif self.mode == "test":
+            image = np.array(image) 
             transform = transforms.Compose([
 	    	transforms.ToTensor()
 	    ])
@@ -88,6 +73,7 @@ class MRIDataset(Dataset):
             sample['image_t'] = image_t
         
         elif self.mode == "val":
+            image = np.array(image) 
             transform = transforms.Compose([
 	    	transforms.ToTensor()
 	    ])
@@ -105,7 +91,7 @@ if __name__ == '__main__':
     '''
     Unit test
     '''
-    batch_size = 4096
+    batch_size = 512
     unlabeled_dir = Path('../data/hw2/unlabeled/')
     dataset = MRIDataset(unlabeled_dir, mode="train") 
     dataloader = DataLoader(dataset, batch_size=batch_size)
