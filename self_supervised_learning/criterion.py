@@ -1,5 +1,7 @@
-mport torch.nn as nn
+import torch
+import torch.nn as nn
 import torch.nn.functional as F
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def nt_xent(
     u: torch.Tensor,                               # [N, C]
@@ -15,7 +17,7 @@ def nt_xent(
     z = torch.cat([u, v], dim=0)                   # [2N, C]
     z = F.normalize(z, p=2, dim=1)                 # [2N, C]
     s = torch.matmul(z, z.t()) / temperature       # [2N, 2N] similarity matrix
-    mask = torch.eye(2 * N).bool().to(z.device)    # [2N, 2N] identity matrix
+    mask = torch.eye(2 * N).bool().to(device)                # [2N, 2N] identity matrix
     s = torch.masked_fill(s, mask, -float('inf'))  # fill the diagonal with negative infinity
     label = torch.cat([                            # [2N]
         torch.arange(N, 2 * N),                    # {N, ..., 2N - 1}
@@ -48,5 +50,3 @@ def KNN(emb, cls, batch_size, Ks=[1, 10, 50, 100]):
     preds = torch.cat(preds, dim=1)
     accs = [(pred == cls.cpu()).float().mean().item() for pred in preds]
     return max(accs)
-
-
