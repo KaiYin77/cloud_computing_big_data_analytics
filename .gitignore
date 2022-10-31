@@ -6,6 +6,7 @@ video_action_classification/temp/
 video_action_classification/wandb/
 
 self_supervised_learning/__pycache__/
+self_supervised_learning/weights/
 self_supervised_learning/models/__pycache__/
 self_supervised_learning/wandb/
 
