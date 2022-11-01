@@ -77,9 +77,6 @@ _warmup_epoch = int(config['optimizer']['warmup_epoch'])
 _lr = float(config['optimizer']['lr'])
 _weight_decay = float(config['optimizer']['weight_decay'])
 
-_step_size = int(config['scheduler']['step_size'])
-_gamma = float(config['scheduler']['gamma'])
-
 class SSRL(pl.LightningModule):
     def __init__(self):
         super().__init__()
