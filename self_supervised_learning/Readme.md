@@ -12,19 +12,25 @@
 
     ```txt
     .
-    ├── data
-    │   ├── test/
-    │   └── train/
+    ├── data/
+    │   └── hw2/
+    │   	├── test/
+    │   	└── unlabeled/
     │ 
 	└── self_supervised_learning 
+    	├── models
+    	│   └── resnet.py
 		├── submit
     	│   └── xxxxx.npy
     	├── weights
     	│   └── xxxxx.ckpt
+    	├── config.py
+    	├── criterion.py
+    	├── dataloader.py
     	├── Readme.md
     	├── requirements.txt
-    	├── dataloader.py
-    	└── train.py
+    	├── train.py
+    	└── utils.py
     ```
 ## Environment
 Boosted by pytorch-lightning
@@ -44,28 +50,12 @@ pip3 install -r requirements.txt
 ## Training Mode
 __train from scratch__
 ```sh
-python train.py --train --net vgglstm
+python train.py --train
 ```
 
-## Make Prediction
+## Make inference for embedding
 
 ```sh
-python train.py --test --net vgglstm --ckpt xxxxx.ckpt 
+python train.py --test --ckpt xxxxx.ckpt 
 ```
----
 
-## Unit Test Pipeline - Dev mode
-
-```sh
-python train.py --dev --net vgglstm
-```
-## Unit Test Dataloader
-
-```sh
-python dataloader
-```
-## Validation Mode
-
-```sh
-python train.py --validate --net vgglstm --ckpt xxxxx.ckpt
-```
