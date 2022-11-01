@@ -8,10 +8,14 @@ import pytorch_lightning as pl
 class Resnet(pl.LightningModule):
     def __init__(self):
         super(Resnet, self).__init__()
-        model = resnet(pretrained=False)
-        self.model = nn.Sequential(*(list(model.children())[:-1]))
+        self.backbone = resnet(pretrained=False, num_classes=512)
+        self.final_layer = nn.Sequential(
+                nn.Linear(512, 256), 
+                nn.ReLU(), 
+                nn.Linear(256, 128), 
+        )
 
     def forward(self, data):
-        x = self.model(data)
-        x = x.reshape(-1, 512)
-        return x
+        embedding = self.backbone(data)
+        output = self.final_layer(embedding)
+        return embedding, output

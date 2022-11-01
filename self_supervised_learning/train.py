@@ -75,6 +75,7 @@ _max_epochs = int(config['trainer']['max_epochs'])
 
 _warmup_epoch = int(config['optimizer']['warmup_epoch'])
 _lr = float(config['optimizer']['lr'])
+_weight_decay = float(config['optimizer']['weight_decay'])
 
 _step_size = int(config['scheduler']['step_size'])
 _gamma = float(config['scheduler']['gamma'])
@@ -89,8 +90,9 @@ class SSRL(pl.LightningModule):
     
     def configure_optimizers(self):
         self.warmup_epoch = _warmup_epoch 
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=_lr)
-        self.lr_scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=_step_size, gamma=_gamma)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=_lr, weight_decay=_weight_decay)
+        self.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=len(self.train_dataloader()), eta_min=0, last_epoch=-1)
+
         return [self.optimizer], [self.lr_scheduler]
 
     def optimizer_step(
@@ -117,8 +119,8 @@ class SSRL(pl.LightningModule):
         x1 = train_batch['image_t1']
         x2 = train_batch['image_t2']
 
-        u = self.model(x1)
-        v = self.model(x2)
+        u_embed, u = self.model(x1)
+        v_embed, v = self.model(x2)
 
         loss = nt_xent(u, v)
         
@@ -136,7 +138,7 @@ class SSRL(pl.LightningModule):
         x = val_batch['image_t']
         label = val_batch['label']
         
-        embedding = self.model(x)
+        embedding, output = self.model(x)
         embedding = embedding.reshape(-1, 512)
         label = label.reshape(-1)
         acc = KNN(embedding, label, batch_size=size)
@@ -153,7 +155,7 @@ class SSRL(pl.LightningModule):
 
     def test_step(self, test_batch, test_idx):
         x = test_batch['image_t']
-        embedding = self.model(x)
+        embedding, output = self.model(x)
         return embedding
 
     def test_epoch_end(self, outputs):
