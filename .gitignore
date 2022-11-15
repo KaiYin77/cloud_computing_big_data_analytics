@@ -10,3 +10,5 @@ self_supervised_learning/weights/
 self_supervised_learning/models/__pycache__/
 self_supervised_learning/wandb/
 
+lab2/images/
+
