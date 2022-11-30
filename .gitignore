@@ -12,3 +12,6 @@ self_supervised_learning/wandb/
 
 lab2/images/
 
+diffusion_generative_model/__pycache__/
+diffusion_generative_model/src/__pycache__/
+diffusion_generative_model/wandb/

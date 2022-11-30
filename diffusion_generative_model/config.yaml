@@ -1,0 +1,24 @@
+---
+data:
+  root: ../data/hw3/
+
+trainer:
+  batch_size: 128
+  max_epochs: 100
+  save_top_k: 3
+  ema_decay: !!float 0.9
+  save_freq: 10
+
+repo:
+  ckpt_dir: ./weights/
+  submit_dir: ./submit/
+
+optimizer:
+  type: adam
+  lr: !!float 1e-4
+
+scheduler:
+  type: lambda_lr
+  warmup: 5000
+
+       

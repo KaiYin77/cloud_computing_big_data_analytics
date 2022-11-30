@@ -41,6 +41,7 @@ class MNISTDataset(Dataset):
 if __name__ == '__main__':
     mnist_dir = Path('../data/hw3/mnist')
     dataset = MNISTDataset(mnist_dir)
+    print(len(dataset)) #60000
     print(dataset[0].shape) #torch.Size([3, 28, 28])
     print(dataset[0].dtype) #torch.float32
     print(dataset[0].max(), dataset[0].min()) #tensor(1.) tensor(-1.)
