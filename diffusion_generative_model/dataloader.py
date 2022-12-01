@@ -6,6 +6,8 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 import torchvision
+from torchvision import transforms as T
+from torchvision.transforms import InterpolationMode
 
 import yaml
 
@@ -40,8 +42,8 @@ class MNISTDataset(Dataset):
 
 if __name__ == '__main__':
     mnist_dir = Path('../data/hw3/mnist')
-    dataset = MNISTDataset(mnist_dir)
+    dataset = MNISTDataset(mnist_dir, transform=T.Resize((32, 32), InterpolationMode.NEAREST))
     print(len(dataset)) #60000
-    print(dataset[0].shape) #torch.Size([3, 28, 28])
+    print(*dataset[0].shape) #torch.Size([3, 28, 28])
     print(dataset[0].dtype) #torch.float32
     print(dataset[0].max(), dataset[0].min()) #tensor(1.) tensor(-1.)

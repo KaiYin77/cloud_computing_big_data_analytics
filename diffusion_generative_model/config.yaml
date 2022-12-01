@@ -12,6 +12,7 @@ trainer:
 repo:
   ckpt_dir: ./weights/
   submit_dir: ./submit/
+  sample_dir: ./sample/
 
 optimizer:
   type: adam
@@ -20,5 +21,12 @@ optimizer:
 scheduler:
   type: lambda_lr
   warmup: 5000
+ 
+model:
+  time_steps: 1000
+  channels: 64
+  ch_mults: [1, 2, 2, 2]
+  attn_res: [16, 8, 4]
+  num_res_blocks: 2
 
        

@@ -4,9 +4,11 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from models import UNet
+import pytorch_lightning as pl
 
-class DiffusionTrainer(nn.Module):
+from src.models import UNet
+
+class DiffusionTrainer(pl.LightningModule):
 
     def __init__(
         self,
@@ -41,7 +43,7 @@ class DiffusionTrainer(nn.Module):
         loss = F.mse_loss(pred_noise, noise)
         return loss
 
-class DiffusionSampler(nn.Module):
+class DiffusionSampler(pl.LightningModule):
 
     def __init__(
         self,
@@ -74,7 +76,7 @@ class DiffusionSampler(nn.Module):
     def forward(self, x_T: torch.Tensor) -> torch.Tensor:
         x_t = x_T
         
-        for t in reversed(torch.arange(self.time_steps, device=x_T.device)):
+        for t in reversed(torch.arange(self.time_steps, device=self.device)):
             z = torch.randn_like(x_t) if t > 0 else 0
             x_t = self.predict_mean(x_t, t) + self.get_buffer('sigma')[t] * z
         return x_t.clip(-1.0, 1.0)
@@ -85,17 +87,17 @@ class DiffusionSampler(nn.Module):
                                     self.time_steps,
                                     n_rows,
                                     dtype=torch.long,
-                                    device=x_T.deive)[:-1]
+                                    device=x_T.device)[:-1]
         save_images = [torch.zeros_like(x_T)]
         x_t = x_T
-
-        for t in reversed(torch.arange(self.time_steps, device=x_T.device)):
+        for t in reversed(torch.arange(self.time_steps, device=self.device)):
             z = torch.randn_like(x_t) if t > 0 else 0
             x_t = self.predict_mean(x_t, t) + self.get_buffer('sigma')[t] * z
             if t in save_index:
                 save_images.append(x_t.clip(-1.0, 1.0))
 
         return torch.cat(save_images, dim=0)
+
 if __name__ == '__main__':
     DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     input_shape = (3, 32, 32)

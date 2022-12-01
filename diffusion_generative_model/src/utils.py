@@ -1,6 +1,6 @@
 from torch import nn
 
-from models import UNet
+from src.models import UNet
 
 class ExponentialMovingAverage:
 

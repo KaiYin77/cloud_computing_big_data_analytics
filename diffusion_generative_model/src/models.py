@@ -3,8 +3,9 @@ from typing import Tuple
 import torch
 from torch import nn
 from torch.nn import functional as F
+import pytorch_lightning as pl
 
-class TimestepEmbedding(nn.Module):
+class TimestepEmbedding(pl.LightningModule):
 
     def __init__(self, time_steps, emb_dim) -> None:
         super().__init__()
@@ -24,7 +25,7 @@ class TimestepEmbedding(nn.Module):
     def forward(self, x) -> torch.Tensor:
         return self.embedding(x)
 
-class Upsample(nn.Module):
+class Upsample(pl.LightningModule):
     
     def __init__(self, in_ch: int) -> None:
         super().__init__()
@@ -37,7 +38,7 @@ class Upsample(nn.Module):
         return x
 
 
-class Downsample(nn.Module):
+class Downsample(pl.LightningModule):
     
     def __init__(self, in_ch: int) -> None:
         super().__init__()
@@ -48,7 +49,7 @@ class Downsample(nn.Module):
         x = self.conv(x)
         return x
 
-class ResBlock(nn.Module):
+class ResBlock(pl.LightningModule):
 
     def __init__(
         self, 
@@ -85,7 +86,7 @@ class ResBlock(nn.Module):
         y = self.conv_block2(y)
         return y + self.shortcut(x)
 
-class  SelfAttentionBlock(nn.Module):
+class  SelfAttentionBlock(pl.LightningModule):
 
     def __init__(self, ch) -> None:
         super().__init__()
@@ -114,7 +115,7 @@ class  SelfAttentionBlock(nn.Module):
 
         return x + self.out(b)
 
-class UNet(nn.Module):
+class UNet(pl.LightningModule):
 
     def __init__(
         self,
