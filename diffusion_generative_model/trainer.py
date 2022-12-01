@@ -96,7 +96,7 @@ class DDPM(pl.LightningModule):
         epoch = self.current_epoch
         sample_x_T = self.sample_noise.to(self.device)
 
-        sample_path =  sample_dir / Path('{prefix}_{epoch}.png')
+        sample_path =  sample_dir / Path(f'{prefix}_{epoch}.png')
         sample_path.parent.mkdir(parents=True, exist_ok=True)
         
         images = sampler.grid_sample(sample_x_T, num_row)
