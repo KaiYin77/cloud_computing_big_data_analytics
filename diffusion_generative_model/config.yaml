@@ -9,10 +9,13 @@ trainer:
   ema_decay: !!float 0.9
   save_freq: 10
 
+sampler:
+  num_samples: 10000
+
 repo:
   ckpt_dir: ./weights/
-  submit_dir: ./submit/
-  sample_dir: ./sample/
+  samples_dir: ./samples/
+  grid_dir: ./grid/
 
 optimizer:
   type: adam

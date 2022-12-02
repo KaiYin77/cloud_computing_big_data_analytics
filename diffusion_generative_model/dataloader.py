@@ -40,6 +40,21 @@ class MNISTDataset(Dataset):
 
         return image.float() / 127.5 - 1.0 
 
+class GaussianNoiseDataset(Dataset):
+
+    def __init__(self, shape, length, mean=0, std=1) -> None:
+        super().__init__()
+        self.shape = shape
+        self.length = length
+        self.mean = mean
+        self.std = std
+
+    def __len__(self) -> int:
+        return self.length
+
+    def __getitem__(self, idx) -> torch.Tensor:
+        return self.mean + self.std * torch.randn(self.shape)
+
 if __name__ == '__main__':
     mnist_dir = Path('../data/hw3/mnist')
     dataset = MNISTDataset(mnist_dir, transform=T.Resize((32, 32), InterpolationMode.NEAREST))
