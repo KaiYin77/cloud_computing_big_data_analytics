@@ -15,3 +15,5 @@ lab2/images/
 diffusion_generative_model/__pycache__/
 diffusion_generative_model/src/__pycache__/
 diffusion_generative_model/wandb/
+diffusion_generative_model/samples/
+diffusion_generative_model/weights/
