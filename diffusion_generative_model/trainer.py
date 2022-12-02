@@ -92,7 +92,7 @@ class DDPM(pl.LightningModule):
             self.ema_sampler.eval()
             self.save_image(self.ema_sampler, prefix='ema')
     
-    def testing_step(self, batch_x_T, batch_idx):
+    def test_step(self, batch_x_T, batch_idx):
         batch_x_0 = self.orig_sampler(batch_x_T)
         batch_x_0 = resize(batch_x_0, [28, 28])
         for x_0 in batch_x_0:
