@@ -17,3 +17,4 @@ diffusion_generative_model/src/__pycache__/
 diffusion_generative_model/wandb/
 diffusion_generative_model/samples/
 diffusion_generative_model/weights/
+diffusion_generative_model/submit/
