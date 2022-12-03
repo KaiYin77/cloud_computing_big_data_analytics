@@ -14,20 +14,25 @@
     .
     ├── data/
     │   └── hw3/
-    │   	└── mnist/
+	│ 		├── mnist/
+    │   	└── mnist.npz
     │ 
 	└── diffusion_generative_model 
-    	├── models
-    	│   └── resnet.py
+    	├── grid/
+    	├── samples/
+    	├── src
+		│ 	├── __init__.py
+		│ 	├── diffusion.py
+		│ 	├── models.py
+    	│   └── utils.ckpt
     	├── weights
-    	│   └── xxxxx.ckpt
+    	│   └── epoch01.ckpt
     	├── config.yaml
-    	├── criterion.py
     	├── dataloader.py
+    	├── get_fid_score.py
     	├── Readme.md
     	├── requirements.txt
-    	├── train.py
-    	└── utils.py
+    	└── trainer.py
     ```
 ## Environment
 Boosted by pytorch-lightning
@@ -42,17 +47,21 @@ pip3 install -r requirements.txt
 ```
 
 
-## Training Mode
-__train from scratch__
+## Training
 ```sh
-python train.py [--train] [--ckpt xxx.ckpt]
+python train.py --train [--ckpt xxx.ckpt]
 ```
 - `--train` : train mode
-- `--ckpt CKPT` : ckpt filename 
+- `--ckpt CKPT` : resume from the checkpoint 
 
-## Make inference for embedding
+## Sampling
 
 ```sh
 python train.py --test --ckpt xxxxx.ckpt 
+```
+
+## Calculate FID score
+```sh
+python get_fid_score.py
 ```
 
