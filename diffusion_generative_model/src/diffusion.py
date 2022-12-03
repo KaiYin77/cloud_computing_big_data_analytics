@@ -55,7 +55,7 @@ class DiffusionSampler(pl.LightningModule):
         super().__init__()
         self.model = model
         self.time_steps = time_steps
-
+        #beta is variance
         beta = torch.linspace(beta_1, beta_T, time_steps,
                               dtype=torch.float32).view(-1, 1, 1, 1)
         alpha = 1.0 - beta
@@ -77,7 +77,7 @@ class DiffusionSampler(pl.LightningModule):
         x_t = x_T
         
         for t in reversed(torch.arange(self.time_steps, device=self.device)):
-            z = torch.randn_like(x_t) if t > 0 else 0
+            z = torch.randn_like(x_t) if t > 0 else 0 # stochastic noise term
             x_t = self.predict_mean(x_t, t) + self.get_buffer('sigma')[t] * z
         return x_t.clip(-1.0, 1.0)
     
