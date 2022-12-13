@@ -32,18 +32,18 @@
 	1. Microservice-based application in modern web development. Docker-based technique is a best choice for microservices because it allows us to package and deploy small service in a lightweight and portable environment. 
 
 ### 4. Exercise 1
-![ckpt1-1](/Users/Macbook/Downloads/hw4/ckpt1-1.png)
-![ckpt1-2](/Users/Macbook/Downloads/hw4/ckpt1-2.png)
+![ckpt1-1](https://github.com/KaiYin77/cloud_computing_big_data_analytics/blob/main/map_reduce/assets/ckpt1-1.png)
+![ckpt1-2](https://github.com/KaiYin77/cloud_computing_big_data_analytics/blob/main/map_reduce/assets/ckpt1-2.png)
 
 ### 5. Exercise 2
-![ckpt2-1](/Users/Macbook/Downloads/hw4/ckpt2-1.png)
-![ckpt2-2](/Users/Macbook/Downloads/hw4/ckpt2-2.png)
+![ckpt2-1](https://github.com/KaiYin77/cloud_computing_big_data_analytics/blob/main/map_reduce/assets/ckpt2-1.png)
+![ckpt2-2](https://github.com/KaiYin77/cloud_computing_big_data_analytics/blob/main/map_reduce/assets/ckpt2-2.png)
 
 ### 6. Exercise 3
-![ckpt3-2](/Users/Macbook/Downloads/hw4/ckpt3-1.png)
-![ckpt3-1](/Users/Macbook/Downloads/hw4/ckpt3-2.png)
+![ckpt3-2](https://github.com/KaiYin77/cloud_computing_big_data_analytics/blob/main/map_reduce/assets/ckpt3-1.png)
+![ckpt3-1](https://github.com/KaiYin77/cloud_computing_big_data_analytics/blob/main/map_reduce/assets/ckpt3-2.png)
 
 ### 7. Exercise 4
-![ckpt4-1](/Users/Macbook/Downloads/hw4/ckpt4-1.png)
-![ckpt4-2](/Users/Macbook/Downloads/hw4/ckpt4-2.png)
+![ckpt4-1](https://github.com/KaiYin77/cloud_computing_big_data_analytics/blob/main/map_reduce/assets/ckpt4-1.png)
+![ckpt4-2](https://github.com/KaiYin77/cloud_computing_big_data_analytics/blob/main/map_reduce/assets/ckpt4-2.png)
 
